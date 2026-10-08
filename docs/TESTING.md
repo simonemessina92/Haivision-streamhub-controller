@@ -14,3 +14,11 @@ Use a test StreamHub with existing profiles. This release adds no profile creati
 10. Check card and RCP controls at minimum and maximum overlay width, using mouse and touchscreen.
 
 Automated messaging/socket tests do not establish remote-device reception. Record actual device results separately before promoting to `main`.
+
+## Native diagnostic messages (0.24.1-dev2)
+
+- Compare an already-failing SRT output with the native GUI: both must display “Bad destination or credentials”, with output power still ON.
+- Compare an input/encoder error and an output warning with the native GUI. Terminal errors with bitrate/resolution parameters must include those exact parameters.
+- Resolve the error in StreamHub or switch the output OFF. Its overlay and colored state must clear on readback.
+- Click a long diagnostic to read the full text. This must not select an output or perform routing.
+- Disconnect the API/source tab and reconnect; old terminal errors must not transfer to a replacement unit.

@@ -1,16 +1,18 @@
 # Haivision Streamhub Controller
 
-[Download development build](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.24.0-dev1.zip) · [Download stable 0.22.2](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/main/downloads/haivision-streamhub-controller-v0.22.2.zip)
+[Download development build](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.24.1-dev2.zip) · [Download stable 0.22.2](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/main/downloads/haivision-streamhub-controller-v0.22.2.zip)
 
 A floating Chrome panel for StreamHub routing and MoJo Pro camera control.
 
-## Development build: 0.24.0-dev1
+## Development build: 0.24.1-dev2
 
 Open the controller on a regular webpage while a signed-in StreamHub tab stays open in the same Chrome profile. The extension locates an authenticated tab and checks the server hardware identity before allowing native commands. Local IP, public IP and hostname aliases can point to the same server.
 
 The StreamHub tab can remain in the background. Hiding the overlay or switching away from its tab stops the controller's native connection and polling. Closing the source tab disables native features until a matching signed-in tab becomes available. The original StreamHub page keeps its own connection.
 
 The build also includes the neutral grey/cyan appearance update from 0.23.0. Camera controls, REST routing and existing profile assignments retain the 0.22.2 behavior.
+
+Native channel errors and warnings now appear over their previews. The controller uses StreamHub's English message labels, including terminal error parameters. Unknown firmware messages are preserved as received. Click a message to read its complete text. Alerts clear when the reported error resolves or an output is OFF.
 
 ## Install or update
 
@@ -49,7 +51,7 @@ If no matching authenticated tab is available, REST controls remain available. N
 | `main` | Stable 0.22.2, reported working on StreamHub hardware |
 | `develop` | Appearance and cross-tab changes under test |
 
-Cross-tab checks use simulated Chrome messaging and Socket.IO responses. They cover background tabs, server matching, token isolation, command forwarding, missing sessions and shutdown. Appearance was rendered in Chromium with simulated inputs at 2/3/4 columns. Cross-tab operation has not yet been verified on StreamHub hardware.
+Cross-tab checks use simulated Chrome messaging and Socket.IO responses. They cover background tabs, server matching, token isolation, command forwarding, missing sessions and shutdown. Appearance was rendered in Chromium with simulated inputs at 2/3/4 columns. Cross-tab operation was confirmed by the user on StreamHub. Diagnostics are covered by simulated server responses and Chromium rendering; this development build still needs device acceptance.
 
 Promote `develop` through a pull request after device testing. Keep the stable build available until the development build is accepted.
 

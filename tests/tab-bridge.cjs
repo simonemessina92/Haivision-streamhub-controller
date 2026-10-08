@@ -11,7 +11,7 @@ function provider(tabId,hardware,authenticated=true){
  class Socket{
   constructor(url){this.config=JSON.parse(JSON.stringify(initial));this.url=url;this.readyState=1;this.closed=false;setTimeout(()=>this.onmessage?.({data:'0{}'}),0);}
   send(packet){packets.push({tabId,packet});if(packet.startsWith('42[')){const a=JSON.parse(packet.slice(2));if(a[0]==='setProfileConfig'){Object.assign(this.config,JSON.parse(a[3]));setTimeout(()=>this.onmessage?.({data:'42'+JSON.stringify(['getConfig',{result:{config:JSON.stringify(this.config)}}])}),0);}}if(packet==='40')setTimeout(()=>{
-   for(const e of [ ['getDeviceInfo',{result:{hardwareIdentifier:hardware,allowedIntercom:1,allowedEncoders:1}}],['getConfig',{result:{config:JSON.stringify(this.config)}}],['getChannelStatus',{result:{channel:[{product:'DMNG-APP',hardwareIdentifier:'phone',instanceId:1,connectionStatus:1,channelStatus:0,intercomStatus:1,videoIFBDecoderCapability:1}]}}] ])this.onmessage?.({data:'42'+JSON.stringify(e)});
+   for(const e of [ ['getDeviceInfo',{result:{hardwareIdentifier:hardware,allowedIntercom:1,allowedEncoders:1}}],['getConfig',{result:{config:JSON.stringify(this.config)}}],['getStatusDevicesChange',{result:{device:[{channel:1,message:'terminal error',liveStatus:-28,liveStatusErrorParam:'1080p50;12000'}]}}],['getChannelStatus',{result:{channel:[{product:'DMNG-APP',hardwareIdentifier:'phone',instanceId:1,connectionStatus:1,channelStatus:0,intercomStatus:1,videoIFBDecoderCapability:1}]}}] ])this.onmessage?.({data:'42'+JSON.stringify(e)});
   },0);}
   close(){this.closed=true;this.readyState=3;this.onclose?.();}
  }
@@ -34,6 +34,7 @@ const sender=tab=>({id:extensionId,frameId:0,tab:{id:tab}}),session={base:'https
  assert(route.ready&&route.provider===2,'find matching StreamHub in a background tab, after rejecting another server');
  assert.equal(contexts.get(2).ctx.document.hidden,true);
  assert(deliveries.some(d=>d.payload.type==='sh-native-features'&&d.payload.state.ready));
+ const diagnostic=deliveries.filter(d=>d.payload.type==='sh-native-features').at(-1).payload.state.inputs[0];assert.equal(diagnostic.message,'terminal error');assert.equal(diagnostic.errorCode,-28);assert.equal(diagnostic.errorParams['param.arg2'],'12000');
  // Wrong server must never receive a terminal command.
  const command={type:'sh-native-command',base:session.base,id:'cmd-1',action:'intercom',input:1,enabled:true};
  await broker.bridgeHandle({type:'sh-bridge-command',consumer,command},sender(3));await flush();

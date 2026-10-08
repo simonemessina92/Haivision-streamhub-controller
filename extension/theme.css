@@ -71,3 +71,13 @@ dialog::backdrop{background:#101218b3}
 main.devices-layout #grid .unit-controls .icon-button{flex-direction:row}
 main.devices-layout #grid .unit-controls .icon-button svg{flex-shrink:0}
 .rcp-channel[data-control=Zoom] .readout{font-size:18px;letter-spacing:-.5px}
+
+/* Native diagnostic overlays stay inside the existing preview rectangle. */
+.tile-diagnostic { position:absolute; inset:0; z-index:3; display:flex; align-items:center; justify-content:center; padding:10px; background:rgba(118,20,28,.72); color:#fff; font-size:12px; line-height:1.35; font-weight:600; text-align:center; white-space:pre-wrap; overflow:auto; overflow-wrap:anywhere; touch-action:pan-y; cursor:help; scrollbar-width:none; }
+.tile-diagnostic[hidden] {display:none}
+.tile-diagnostic::-webkit-scrollbar {display:none}
+.input-preview[data-diagnostic="error"] {box-shadow:inset 0 0 0 3px #d95661}
+.input-preview[data-diagnostic="warning"] .tile-diagnostic {background:rgba(111,77,15,.78)}
+.input-preview[data-diagnostic="warning"] {box-shadow:inset 0 0 0 3px #d3a74d}
+.state.error {color:#ff8d96!important}.state.warning {color:#efc46c!important}
+.diagnostic-full-text {white-space:pre-wrap; overflow-wrap:anywhere; user-select:text}
