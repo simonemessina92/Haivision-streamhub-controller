@@ -1,5 +1,5 @@
 (()=>{
- const version='0.24.2',id='streamhub-virtual-panel-host',old=document.getElementById(id),origin=chrome.runtime.getURL('').slice(0,-1);
+ const version='0.24.3',id='streamhub-virtual-panel-host',old=document.getElementById(id),origin=chrome.runtime.getURL('').slice(0,-1);
  if(old&&old.dataset.shVersion!==version){old.__shCleanup?.();old.remove();}
  if(old?.isConnected){old.hidden=!old.hidden;old.style.display=old.hidden?'none':'flex';old.shadowRoot.querySelector('iframe').contentWindow.postMessage({type:'sh-visible',visible:!old.hidden},origin);return;}
  const host=document.createElement('div');host.id=id;host.dataset.shVersion=version;host.style.cssText='all:initial;box-sizing:border-box;display:flex;position:fixed;left:24px;top:24px;width:1000px;height:740px;min-width:min(520px,calc(100vw - 16px));min-height:min(300px,calc(100vh - 16px));max-width:min(1000px,calc(100vw - 16px));max-height:calc(100vh - 16px);z-index:2147483647;background:#1e1f23;border:1px solid #454954;border-radius:8px;overflow:hidden;box-shadow:0 12px 40px #0008;';

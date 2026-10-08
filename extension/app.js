@@ -31,10 +31,9 @@ function confirmAssignment(){
  if(!source||!selected.size||busy||!online)return;
  const input={id:source.id,uid:source.uid,name:source.name},keys=[...selected],assignmentEpoch=epoch;
  const {d,list}=picker('Assign outputs');
- list.append(el('p',`Assign Input ${input.id} · ${input.name} to ${keys.length} selected output${keys.length===1?'':'s'}?`));
- list.append(el('p','Do you also want to turn ON the source input to start streaming? Output assignment keeps the existing output ON behavior.'));
+ d.classList.add('assign-dialog');list.classList.add('assign-choices');list.append(el('p',`Input ${input.id} · ${input.name} → ${keys.length} output${keys.length===1?'':'s'}`,'assign-summary'));
  const choose=start=>{d.close();d.remove();if(assignmentEpoch!==epoch||source?.id!==input.id||source?.uid!==input.uid){note('Source changed. Select it again before assigning.');return;}outputAction('route',undefined,keys,{...input,start});};
- list.append(button('Assign only',()=>choose(false)),button('Assign and start input',()=>choose(true),'primary'));
+ list.append(button('Only assign',()=>choose(false)),button('LIVE',()=>choose(true),'assign-live'));
 }
 async function outputAction(type,action,keys,assignment=null){if(!keys.length)return;const input=assignment?.id??source?.id;await runAction(async()=>{for(const k of keys)locks.add(k);render();let d;try{d=await write({type,action,input,keys});}finally{for(const k of keys)locks.delete(k);}if(d.snapshot)update(d.snapshot);note(d.results.map(r=>`${r.ok?'✓':'!'} ${r.message}`).join(' · '));if(d.results.length&&d.results.every(r=>r.ok)){
  if(type==='route'&&assignment?.start){const row=data.inputs.find(i=>i.id===input&&i.uid===assignment.uid);if(!row||!row.canPower){note('Outputs assigned. Source input cannot be started; check its current state in StreamHub.');return;}if(!row.enabled){locks.add('IN:'+input);render();try{const started=await write({type:'inputPower',input,action:'enable',expectedUID:assignment.uid});if(started.snapshot)update(started.snapshot);note('Outputs assigned. Input start command accepted; waiting for StreamHub LIVE status.');}catch(error){note('Outputs assigned. Input start failed: '+error.message);return;}finally{locks.delete('IN:'+input);}}else note('Outputs assigned. Source input is already ON.');}

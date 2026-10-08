@@ -31,3 +31,12 @@ Automated messaging/socket tests do not establish remote-device reception. Recor
 - Starting an already ON input must not send a duplicate start command.
 - LIVE appears only for reported runtime status 2; output status 1 stays ON, OFF stays OFF, errors/warnings retain their native text.
 - A source replaced between assignment and start must not receive the original start command.
+
+## Output preview parity (0.24.3-dev4)
+
+- With a connected but OFF MoJo input, assign NDI and SRT outputs using Only assign. NDI should show the native ready pattern, and SRT should show no input thumbnail.
+- Start the source and compare dedicated NDI/physical previews with the native dashboard.
+- Stop the source: the ready pattern must replace the output live frame even while input previews remain available.
+- Assign a software encoder to an IP output: its thumbnail must come from that encoder.
+- If the native pattern endpoint fails, show Output ready rather than an unrelated input image.
+- Hide the controller: no additional pattern requests should continue.

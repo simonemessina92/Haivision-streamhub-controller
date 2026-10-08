@@ -1,10 +1,10 @@
 # Haivision Streamhub Controller
 
-[Download development build](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.24.2-dev3.zip) · [Download stable 0.22.2](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/main/downloads/haivision-streamhub-controller-v0.22.2.zip)
+[Download development build](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.24.3-dev4.zip) · [Download stable 0.22.2](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/main/downloads/haivision-streamhub-controller-v0.22.2.zip)
 
 A floating Chrome panel for StreamHub routing and MoJo Pro camera control.
 
-## Development build: 0.24.2-dev3
+## Development build: 0.24.3-dev4
 
 Open the controller on a regular webpage while a signed-in StreamHub tab stays open in the same Chrome profile. The extension locates an authenticated tab and checks the server hardware identity before allowing native commands. Local IP, public IP and hostname aliases can point to the same server.
 
@@ -15,6 +15,8 @@ The build also includes the neutral grey/cyan appearance update from 0.23.0. Cam
 Native channel errors and warnings now appear over their previews. The controller uses StreamHub's English message labels, including terminal error parameters. Unknown firmware messages are preserved as received. Click a message to read its complete text. Alerts clear when the reported error resolves or an output is OFF.
 
 ASSIGN now asks whether to assign only or also start the source input. The start command runs only after every selected output assignment succeeds. Input and output LIVE labels follow StreamHub runtime status; enabling an output alone does not imply LIVE.
+
+Physical/NDI previews now use their dedicated output frames and native `/thumbnails` ready patterns, never an input thumbnail fallback. IP outputs use only a LIVE source preview or the assigned encoder preview. The assignment dialog offers **Only assign** and a red **LIVE** button.
 
 ## Install or update
 

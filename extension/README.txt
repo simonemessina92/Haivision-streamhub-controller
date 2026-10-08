@@ -39,3 +39,5 @@ Restyling validation: real headless Chromium rendering with simulated server dat
 0.24.1-dev2: Native preview errors/warnings with StreamHub English labels and terminal parameters. Unknown messages retain their original text. Click an alert for the complete message. Diagnostics are read-only; routing and device commands are unchanged. Validated with simulated API/socket data and Chromium layout checks; device acceptance is pending.
 
 0.24.2-dev3: ASSIGN offers assignment only or assignment followed by source ON. Source starts only after all routes confirm; an already ON source is not restarted. Input/output LIVE indicators use runtime status 2. Existing output activation behavior is retained.
+
+0.24.3-dev4: Physical/NDI previews use dedicated output frames and native ready patterns. IP previews use only a LIVE input or the assigned encoder. Pattern requests are read-only and use the authenticated StreamHub tab. Compact Only assign / red LIVE dialog. New behavior requires device acceptance.
