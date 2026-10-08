@@ -1,4 +1,4 @@
-Haivision Streamhub Controller 0.22.2
+Haivision Streamhub Controller 0.24.0-dev1
 
 Chrome extension: floating resizable panel with Inputs, Outputs, Encoders and MoJo Pro tabs.
 Install unpacked in chrome://extensions, then click the extension icon on a normal webpage.
@@ -15,7 +15,12 @@ OFF previews use the authenticated StreamHub GUI session: open this panel on the
 Output thumbnails use native SDI/NDI output events when available; otherwise an enabled output can show its assigned input thumbnail labelled Source preview. OFF outputs clear the image.
 
 All UI text is English. Checks performed against simulated API responses; user hardware feedback is noted separately below. Native OFF previews were reported working by the user on two StreamHub servers in 0.20.12.
-0.22.2 changes:
+0.23.0 appearance update:
+- Neutral Haivision-inspired surfaces, cyan accents, consistent controls and quieter camera-console styling.
+- Original 0.22.2 API, routing, previews, camera controls and grid/resize logic retained.
+- No HLS player or new service ports.
+
+0.22.2 functional baseline:
 - Encoder ON/OFF and EJECT use the same icon buttons, sizing and labels as Inputs/Outputs.
 - Intercom no longer holds the whole UI busy while waiting for a status event. As in the native GUI, unitCommand startIntercom/stopIntercom is dispatched directly. The notification reports command dispatch, not remote reception.
 - STARTING and ERROR states permit STOP, matching the native dashboard. The channel state remains authoritative over independent terminal device status. No repeated commands or optimistic state updates are issued.
@@ -26,3 +31,7 @@ Validation: JavaScript syntax and simulated native/DOM tests, including STOP dur
 IP input ON/OFF updates inputProtocol.<profile>.enable, as the native GUI does. OFF never unassigns the profile. Public and local stream addresses use native ip_public/ip_local events; hostname comes from native getConfig. No tokens or unrelated configuration are forwarded.
 
 Preview aliases: the configured REST server hardwareIdentifier is compared with getDeviceInfo/abusProxyIsReady from the open GUI socket. A matching server may use different LAN/WAN IPs or hostnames. The GUI session token stays on the page origin; API credentials are not forwarded.
+
+Restyling validation: real headless Chromium rendering with simulated server data at panel widths 518, 748 and 998 px. Inputs, Outputs, Encoders and MoJo RCP were compared against 0.22.2; card/control geometry and 16:9 previews match. No clipped card buttons or RCP controls, and no page errors in these fixtures. Functional scripts are byte-identical to 0.22.2; panel.js differs only in version and appearance values. No new hardware tests performed.
+
+0.24.0-dev1: cross-tab native connection. Keep a matching signed-in StreamHub tab open; the overlay can run on another regular webpage in the same Chrome profile. Optional HTTP/HTTPS site access and tabs permission support discovery. Hardware identity is required before native command dispatch. Tokens remain in the StreamHub tab. Hiding/backgrounding the overlay closes its provider; a six-and-a-half-second lease closes abandoned providers. Cross-tab behavior is verified with simulated Chrome/socket tests, not yet hardware-tested.

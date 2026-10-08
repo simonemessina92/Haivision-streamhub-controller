@@ -1,0 +1,18 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert'),path=require('path');
+const messages=[],posted=[],listeners={},runtimeListeners=[],timers=[];let observer, activeTimer=false;
+const win={addEventListener:(n,f)=>listeners[n]=f,removeEventListener:n=>delete listeners[n]},doc={hidden:false,addEventListener:(n,f)=>listeners[n]=f,removeEventListener:n=>delete listeners[n]},frame={contentWindow:{postMessage:(m,o)=>posted.push({m,o})}},host={isConnected:true,hidden:false};
+const ctx={window:win,document:doc,crypto:{randomUUID:()=> 'overlay-uuid'},setInterval:f=>{timers.push(f);activeTimer=true;return 1;},clearInterval(){activeTimer=false;},JSON,MutationObserver:class{constructor(f){observer=f;}observe(){}disconnect(){}},chrome:{runtime:{id:'extension',sendMessage:m=>{messages.push(m);return Promise.resolve();},onMessage:{addListener:f=>runtimeListeners.push(f),removeListener:f=>runtimeListeners.splice(runtimeListeners.indexOf(f),1)}}}};
+vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../extension/tab-bridge.js'),'utf8'),ctx);
+const cleanup=ctx.installTabBridge(host,frame,'chrome-extension://extension');
+const session={type:'sh-preview-session',base:'https://public-alias:8896',serverIdentity:{hardwareIdentifier:'HW'},visible:true};
+const receive=data=>listeners.message({source:frame.contentWindow,origin:'chrome-extension://extension',data});
+receive(session);assert.equal(messages.at(-1).type,'sh-bridge-session');assert(activeTimer);
+timers[0]();assert.equal(messages.at(-1).type,'sh-bridge-session','lease renewal');
+const delivery={type:'sh-bridge-delivery',consumer:'overlay-uuid',payload:{type:'sh-native-preview',base:session.base,id:1}};
+runtimeListeners[0](delivery,{id:'extension'});assert.equal(posted.length,1);
+runtimeListeners[0]({...delivery,payload:{...delivery.payload,base:'http://other'}},{id:'extension'});runtimeListeners[0](delivery,{id:'other-extension'});assert.equal(posted.length,1,'base and sender isolation');
+receive({type:'sh-native-command',base:session.base,id:'cmd-1'});assert.equal(messages.at(-1).type,'sh-bridge-command');
+host.hidden=true;observer();assert.equal(messages.at(-1).type,'sh-bridge-stop');assert(!activeTimer,'no heartbeat timer while hidden');const count=messages.length;timers[0]();assert.equal(messages.length,count,'no heartbeats while hidden');runtimeListeners[0](delivery,{id:'extension'});assert.equal(posted.length,1,'no images while hidden');
+host.hidden=false;observer();assert.equal(messages.at(-1).type,'sh-bridge-session');doc.hidden=true;listeners.visibilitychange();assert.equal(messages.at(-1).type,'sh-bridge-stop');doc.hidden=false;listeners.visibilitychange();assert.equal(messages.at(-1).type,'sh-bridge-session');
+cleanup();assert.equal(messages.at(-1).type,'sh-bridge-stop');assert.equal(runtimeListeners.length,0);assert(!listeners.message);
+console.log('PASS overlay bridge lifecycle: heartbeats only while visible, hide/background stop, resume, sender/base isolation, removed listeners.');

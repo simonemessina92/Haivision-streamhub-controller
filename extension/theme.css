@@ -1,0 +1,73 @@
+/* Presentation only. Original card tracks and RCP geometry are retained. */
+:root{--bg:#1e1f23;--panel:#2a2c32;--line:#41434c;--text:#e8e9ed;--muted:#a3a6b2;--accent:#65bfff;--surface:#25272e;--field:#202229}
+body{font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{border-color:var(--line);border-radius:4px;background:var(--surface)}
+button{color:#ced1da;transition:background-color .12s,border-color .12s,color .12s}
+button:hover:not(:disabled){background:#343740;border-color:#626671;color:#fff}
+button:disabled{opacity:.38}
+.primary{background:#21475f;border-color:#5088ac;color:#dcefff}
+.primary:hover:not(:disabled){background:#2a5875;border-color:var(--accent)}
+#workspace>header{border-color:var(--line)}
+#workspace>header nav button{background:transparent;color:var(--muted);font-weight:500;border-radius:4px 4px 0 0}
+#workspace>header nav button.active{background:#293b49;border-bottom-color:var(--accent);color:#d4edff}
+.utilities button{background:transparent;color:var(--muted);border-color:var(--line)}
+.tile{background:var(--panel);border-color:#41434c}
+main.devices-layout #grid .tile{border-radius:5px;box-shadow:0 2px 5px #0002}
+.tile.selected{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)!important}
+.tile.active-route{border-color:#5088ac}
+main.devices-layout #grid .tagline{background:var(--surface);color:#b1b5c1;font-weight:500;letter-spacing:.15px}
+.state{color:#959caa;letter-spacing:.3px}
+.state.live{color:#88d2ff;font-weight:600}
+main.devices-layout #grid .name{background:var(--panel);color:#f0f1f4;font-weight:500}
+main.devices-layout #grid .subline{background:var(--panel)}
+main.devices-layout #grid .source-row{background:var(--panel)}
+main.devices-layout #grid .source-select{background:var(--field);border-color:#474a55;color:#c4cad7}
+main.devices-layout #grid .tile-controls{background:var(--surface);border-top-color:#41434c}
+.icon-button{border-radius:4px;color:#aeb5c3;background:transparent}
+.icon-button svg{stroke-width:1.65}
+main.devices-layout #grid .tile-controls .icon-button span{font-size:8px;line-height:10px}
+.icon-button.on,main.devices-layout #grid .unit-controls .on{background:#244456;color:#a5ddff;border-color:#5088ac}
+.icon-button.recording{background:#70313e;color:#ffd6de}
+main.devices-layout #grid .unit-controls .icon-button{background:#24262d;border:1px solid #41434c}
+main.devices-layout #grid .unit-controls .icon-button.on{background:#244456}
+main.devices-layout #grid .output-add-tile{background:#25272e;border-color:#41434c;border-radius:5px;color:#99a6b9}
+main.devices-layout #grid .output-add-tile:hover:not(:disabled){background:#2e333d;border-color:#5088ac;color:#bde7ff}
+.output-add-label{color:#aeb5c3;letter-spacing:.7px}
+.input-preview{background:#15171b}
+.preview-label{color:#9099a9}
+.signal-format{background:#181b23df;color:#d4dce8}
+.bottom{border-color:var(--line)}
+.bottom p{color:#a3a6b2}
+.version,#endpoint{color:#868b99}
+#login h1{font-size:22px;font-weight:500;letter-spacing:-.3px}
+#login input{background:var(--field);border-color:#4b4f5a;color:#e8e9ed}
+#login label{font-size:12px;color:#b4b8c4}
+dialog{background:#2a2c32;border-color:#515562;border-radius:6px;box-shadow:0 12px 36px #0006}
+dialog h2{font-size:16px;font-weight:500;color:#f0f1f4}
+dialog::backdrop{background:#101218b3}
+.output-picker button{background:#25272e;border-color:#41434c}
+/* RCP keeps its original physical controls, with quieter surfaces. */
+.rcp-console{background:#25272e;border-color:#454954;box-shadow:none;border-radius:5px}
+.rcp-brand{color:#e8e9ed;letter-spacing:.3px}
+.camera-choice button,.rcp-speed button{background:#202229;border-color:#454954;color:#b9c0cd;border-radius:4px;font-weight:500}
+.camera-choice button.active,.rcp-speed button.active,.auto-key.active{background:#244456;border-color:#5088ac;color:#c8eaff}
+.rcp-channel{background:#2c2f37;border-color:#414550;border-radius:4px}
+.rcp-channel h3{color:#bec6d3;letter-spacing:.8px;font-weight:500}
+.rcp-display{background:#1c2129;border-color:#424f60;border-radius:3px}
+.rcp-display .readout{color:#cce9ff;font-family:ui-monospace,Consolas,monospace;font-weight:400;letter-spacing:-.5px;background:transparent}
+.rcp-unit{color:#91a9bf}
+.auto-key{background:#23262e;border-color:#515763;color:#b9c0cd;border-radius:3px;font-weight:500}
+.encoder{background:repeating-conic-gradient(#647082 0deg 1deg,#252932 1deg 10deg);box-shadow:0 2px 5px #0004}
+.encoder-cap{background:radial-gradient(circle at 40% 30%,#444b58,#303642 70%);border-color:#6b7585;box-shadow:inset 0 0 0 3px #303642}
+.encoder-cap i{background:#bce5ff}
+.encoder.turning{box-shadow:0 0 0 2px var(--accent)}
+.rcp-step{background:#23262e;border-color:#515763;color:#c9d3e2;border-radius:3px}
+.rcp-step.held{background:#244456;border-color:#65bfff}
+.zoom-fader{border-color:#515763;border-radius:3px;background:linear-gradient(90deg,#2c3039 45%,#151a21 45%,#151a21 55%,#2c3039 55%)}
+.fader-cap{border-color:#8291a6;border-radius:2px;background:linear-gradient(#68788f,#3a4557 44%,#bddaf0 48%,#3a4557 54%,#56657b)}
+.mojo-monitor .input-preview{border-radius:3px}
+.device-position{color:#aebccc}
+@media(prefers-reduced-motion:reduce){button{transition:none}}
+main.devices-layout #grid .unit-controls .icon-button{flex-direction:row}
+main.devices-layout #grid .unit-controls .icon-button svg{flex-shrink:0}
+.rcp-channel[data-control=Zoom] .readout{font-size:18px;letter-spacing:-.5px}

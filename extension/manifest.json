@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Haivision Streamhub Controller",
-  "version": "0.22.2",
+  "version": "0.24.0",
   "description": "StreamHub input/output routing, existing profiles, previews and MoJo Pro RCP",
   "permissions": [
     "storage",
     "activeTab",
     "scripting",
-    "clipboardWrite"
+    "clipboardWrite",
+    "tabs"
   ],
   "optional_host_permissions": [
     "http://*/*",
@@ -37,7 +38,8 @@
         "scale.js",
         "polling.js",
         "logo.png",
-        "features.js"
+        "features.js",
+        "theme.css"
       ],
       "matches": [
         "http://*/*",

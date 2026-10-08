@@ -1,12 +1,16 @@
 # Haivision Streamhub Controller
 
-[Download stable 0.22.2](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/main/downloads/haivision-streamhub-controller-v0.22.2.zip) · [Development branch](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/develop)
+[Download development build](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.24.0-dev1.zip) · [Download stable 0.22.2](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/main/downloads/haivision-streamhub-controller-v0.22.2.zip)
 
 A floating Chrome panel for StreamHub routing and MoJo Pro camera control.
 
-## Stable build: 0.22.2
+## Development build: 0.24.0-dev1
 
-The stable controller uses the authenticated StreamHub page beneath the overlay for native previews and commands. Open it on the signed-in StreamHub GUI for complete functionality. Cross-tab operation and the appearance update are available on `develop` for testing.
+Open the controller on a regular webpage while a signed-in StreamHub tab stays open in the same Chrome profile. The extension locates an authenticated tab and checks the server hardware identity before allowing native commands. Local IP, public IP and hostname aliases can point to the same server.
+
+The StreamHub tab can remain in the background. Hiding the overlay or switching away from its tab stops the controller's native connection and polling. Closing the source tab disables native features until a matching signed-in tab becomes available. The original StreamHub page keeps its own connection.
+
+The build also includes the neutral grey/cyan appearance update from 0.23.0. Camera controls, REST routing and existing profile assignments retain the 0.22.2 behavior.
 
 ## Install or update
 
@@ -14,8 +18,8 @@ The stable controller uses the authenticated StreamHub page beneath the overlay 
 2. Open `chrome://extensions` and enable **Developer mode**.
 3. Choose **Load unpacked** and select the `streamhub-virtual-panel` folder containing `manifest.json`.
 4. For an existing installation, replace files in its existing folder and click **Reload**. Refresh pages that hosted the old overlay.
-5. Click the extension icon on the signed-in StreamHub GUI page. Allow access to the configured StreamHub address when Chrome asks.
-6. Enter the StreamHub REST address and API key. Open the overlay on its signed-in native GUI page.
+5. Click the extension icon on a regular HTTP/HTTPS page. Allow site access when Chrome asks; cross-tab discovery needs access to the authenticated StreamHub tab as well as the overlay page.
+6. Enter the StreamHub REST address and API key. Keep its native GUI signed in on another tab.
 
 Chrome internal pages, the Web Store and other protected browser pages cannot host injected overlays.
 

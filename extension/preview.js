@@ -17,6 +17,6 @@ window.addEventListener('message',e=>{if(e.source!==parent||e.data?.type!=='sh-n
 
 window.addEventListener('message',e=>{if(e.source!==parent||e.data?.type!=='sh-native-network'||e.data.base!==base||!pollingAllowed()||!connected)return;call({type:'nativeNetwork',base,network:e.data.network}).catch(()=>{});});
 
-window.addEventListener('message',e=>{if(e.source===parent&&e.data?.type==='sh-preview-status'&&e.data.base===base&&pollingAllowed()&&e.data.message==='The open StreamHub page belongs to a different server.')note(e.data.message);});
+window.addEventListener('message',e=>{if(e.source===parent&&e.data?.type==='sh-preview-status'&&e.data.base===base&&pollingAllowed()&&typeof e.data.message==='string'&&e.data.message.length<=256)note(e.data.message);});
 
 window.addEventListener('message',e=>{if(e.source!==parent||e.data?.type!=='sh-native-device-recording'||e.data.base!==base||!pollingAllowed()||!connected||!Array.isArray(e.data.devices))return;for(const d of e.data.devices){if(!Number.isInteger(d.id)||typeof d.recording!=='boolean')continue;const i=data.inputs.find(i=>i.id===d.id&&i.connected);if(!i)continue;terminalRecordingStates.set(base+':'+i.id,{uid:i.uid,recording:d.recording});i.deviceRecording=d.recording;}render();});

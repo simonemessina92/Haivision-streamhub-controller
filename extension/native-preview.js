@@ -1,8 +1,8 @@
 /* Engine.IO 4 / Socket.IO preview receiver with constrained native controls. */
-globalThis.installNativePreview=function(host,frame,targetOrigin){
+globalThis.installNativePreview=function(host,frame,targetOrigin,options={}){
  let socket=null,retry=null,desired='',disposed=false,expected=null,verified=false,blocked=false,network={localIps:[],publicIp:null,hostname:null};
  const features=typeof globalThis.installNativeFeatures==='function'?globalThis.installNativeFeatures(frame,targetOrigin,()=>({socket,verified,allowed:!!allowed(),base:desired})):null;
- const allowed=()=>!disposed&&!blocked&&host.isConnected&&!host.hidden&&!document.hidden&&desired;
+ const allowed=()=>!disposed&&!blocked&&host.isConnected&&!host.hidden&&(options.remote||!document.hidden)&&desired;
  function close(){features?.reset();clearTimeout(retry);retry=null;if(socket){const old=socket;socket=null;old.onclose=null;old.onmessage=null;old.close();}}
  function connect(){if(!allowed()||socket)return;let base,identity;try{base=new URL(desired);identity=JSON.parse(sessionStorage.getItem('identity')||'null');}catch{return;}
  // Aliases are matched by the server hardware identifier, not the URL spelling.
@@ -15,7 +15,7 @@ globalThis.installNativePreview=function(host,frame,targetOrigin){
  const metadata=event[0]==='getDeviceInfo'?event[1]?.result:event[1];
  if(!metadata||typeof metadata.hardwareIdentifier!=='string')return;
  if(expected?.hardwareIdentifier){const matches=metadata.hardwareIdentifier.trim()===expected.hardwareIdentifier&&(!expected.dockerId||!metadata.dockerId||expected.dockerId===metadata.dockerId);if(!matches){blocked=true;verified=false;frame.contentWindow.postMessage({type:'sh-preview-status',base:desired,message:'The open StreamHub page belongs to a different server.'},targetOrigin);close();return;}verified=true;}
- if(verified){frame.contentWindow.postMessage({type:'sh-native-network',base:desired,network},targetOrigin);features?.publish();}return;
+ if(verified){frame.contentWindow.postMessage({type:'sh-native-network',base:desired,network},targetOrigin);features?.publish();frame.contentWindow.postMessage({type:'sh-bridge-ready',base:desired},targetOrigin);}return;
  }
  if(['ip_local','ip_public','getConfig'].includes(event[0])){
  const value=event[1];
@@ -35,5 +35,6 @@ globalThis.installNativePreview=function(host,frame,targetOrigin){
  function visibility(){if(!allowed())close();else connect();}
  window.addEventListener('message',message);document.addEventListener('visibilitychange',visibility);
  const observer=new MutationObserver(visibility);observer.observe(host,{attributes:true,attributeFilter:['hidden','style']});
- return()=>{disposed=true;close();features?.dispose();observer.disconnect();window.removeEventListener('message',message);document.removeEventListener('visibilitychange',visibility);};
+ const dispose=()=>{disposed=true;close();features?.dispose();observer.disconnect();window.removeEventListener('message',message);document.removeEventListener('visibilitychange',visibility);};
+ dispose.receive=data=>{const e={source:frame.contentWindow,origin:targetOrigin,data};message(e);features?.receive(e);};return dispose;
 };

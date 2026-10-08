@@ -1,5 +1,6 @@
+importScripts('native-broker.js');
 chrome.action.onClicked.addListener(async tab=>{
- try {await chrome.scripting.executeScript({target:{tabId:tab.id},files:['native-features.js','native-preview.js','panel.js']});await chrome.action.setBadgeText({tabId:tab.id,text:''});}
+ try {await chrome.permissions.request({origins:['http://*/*','https://*/*']});await chrome.scripting.executeScript({target:{tabId:tab.id},files:['tab-bridge.js','panel.js']});await chrome.action.setBadgeText({tabId:tab.id,text:''});}
  catch {await chrome.action.setBadgeText({tabId:tab.id,text:'!'});}
 });
 const truth=x=>x===true||x===1||x==='1';
@@ -201,4 +202,4 @@ async function handle(m){
  return {results,snapshot:after};
  }finally{mutating=false;}
 }
-chrome.runtime.onMessage.addListener((m,s,reply)=>{handle(m).then(data=>reply({ok:true,data})).catch(e=>reply({ok:false,error:e.message}));return true;});
+chrome.runtime.onMessage.addListener((m,s,reply)=>{if(bridgeTypes.has(m?.type))return;handle(m).then(data=>reply({ok:true,data})).catch(e=>reply({ok:false,error:e.message}));return true;});
