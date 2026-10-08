@@ -22,3 +22,12 @@ Automated messaging/socket tests do not establish remote-device reception. Recor
 - Resolve the error in StreamHub or switch the output OFF. Its overlay and colored state must clear on readback.
 - Click a long diagnostic to read the full text. This must not select an output or perform routing.
 - Disconnect the API/source tab and reconnect; old terminal errors must not transfer to a replacement unit.
+
+## Assignment and LIVE (0.24.2-dev3)
+
+- Select an OFF source and multiple outputs. Cancel ASSIGN: no requests.
+- Choose Assign only: output routing must work without starting the input.
+- Choose Assign and start input: all routes must confirm before the source ON command. If any route fails, the input must not be started.
+- Starting an already ON input must not send a duplicate start command.
+- LIVE appears only for reported runtime status 2; output status 1 stays ON, OFF stays OFF, errors/warnings retain their native text.
+- A source replaced between assignment and start must not receive the original start command.

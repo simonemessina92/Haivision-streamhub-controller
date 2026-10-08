@@ -169,7 +169,7 @@ async function handle(m){
  }
 
  if(m.type==='inputPower'||m.type==='inputEject'){
- const row=before.inputs.find(i=>i.id===input);if(!row)throw Error('Input unavailable.');const {pausedInputs={}}=await chrome.storage.local.get('pausedInputs'),slot=c.base+':'+input;
+ const row=before.inputs.find(i=>i.id===input);if(!row)throw Error('Input unavailable.');if(m.expectedUID!==undefined&&row.uid!==m.expectedUID)throw Error('Input identity changed. Select the source again.');const {pausedInputs={}}=await chrome.storage.local.get('pausedInputs'),slot=c.base+':'+input;
  if(row.canLive){await request(c,`/inputs/${input}/live/${m.type==='inputEject'?'eject':m.action==='enable'?'start':'stop'}`);}
  else {const saved=pausedInputs[slot],id=Number.isInteger(row.protocolId)&&row.protocolId>=0?row.protocolId:undefined;
  if(!Number.isInteger(id)||id<0)throw Error('Select an IP preset before turning on this input.');const collection=await config(c,'inputProtocol'),current=collection[id];if(!current)throw Error('Input preset unavailable.');

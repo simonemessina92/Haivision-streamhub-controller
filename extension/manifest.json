@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Haivision Streamhub Controller",
-  "version": "0.24.1",
+  "version": "0.24.2",
   "description": "StreamHub input/output routing, existing profiles, previews and MoJo Pro RCP",
   "permissions": [
     "storage",
