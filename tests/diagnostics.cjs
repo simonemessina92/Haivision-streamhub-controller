@@ -15,6 +15,8 @@ assert.equal(get({status:3,...fields(r)}).message,'Too low video bitrate (min. 1
 assert.equal(get({status:3,...fields({...r,recordStatusErrorParam:'2160p50;25000'})}).message,'Too low video bitrate (min. 25000 kbps for 2160p50).');
 assert.equal(get({status:3,...fields({liveStatus:-9999,message:'Unknown firmware detail'})}).message,'Unknown firmware detail');
 assert.equal(get({status:3,message:'Old error'},'input',{status:2,message:''}),null,'native resolved state clears REST error');
+assert.equal(get({status:3,enabled:true,message:''},'output').message,'Error');
+assert.equal(get({status:4,enabled:true,message:''},'output').message,'Warning');
 // All three readers use identical device error precedence and parameter handling.
 for(const file of ['background.js','native-features.js']){
  const code=fs.readFileSync(path.join(root,file),'utf8');const helper=code.slice(code.indexOf('function terminalDiagnosticFields('),code.indexOf('\n',code.indexOf('function terminalDiagnosticFields(')));

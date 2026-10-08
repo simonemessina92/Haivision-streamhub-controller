@@ -270,7 +270,7 @@ function streamHubDiagnostic(item,kind='input',native=null){
  if(!item)return null;
  const row=kind==='input'&&native?{...item,...native}:item,status=Number(row.status);
  if(![3,4].includes(status)||(kind==='output'&&!row.enabled))return null;
- const severity=status===3?'error':'warning',fallback=status===3?'ERROR':'WARNING',raw=typeof row.message==='string'?row.message:'';
+ const severity=status===3?'error':'warning',fallback=status===3?'Error':'Warning',raw=typeof row.message==='string'?row.message:'';
  const catalog=kind==='output'?STREAMHUB_MESSAGES.output:STREAMHUB_MESSAGES.input;
  let message=kind==='input'&&Number(row.errorCode)<0?STREAMHUB_MESSAGES.terminal[row.errorCode]||raw:catalog[raw]||raw;
  if(message)message=message.replace(/\$\{([^}]+)\}/g,(match,key)=>row.errorParams?.[key]??match);
