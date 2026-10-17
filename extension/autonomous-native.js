@@ -11,7 +11,7 @@ globalThis.createAutonomousNativeSession=function({load,saveToken,invalidate,onP
   try{const url=new URL('/socket.io/',session.origin);url.protocol=url.protocol==='https:'?'wss:':'ws:';url.searchParams.set('token',session.token);url.searchParams.set('EIO','4');url.searchParams.set('transport','websocket');active=new WebSocketClass(url.href);socket=active;}catch{onStatus('Direct native connection failed. Check web access and HTTPS certificate.');schedule(v);return;}
   const context=()=>({socket,base:desired?.base,verified,allowed:!!desired&&socket===active,webOrigin:session.origin,token:session.token,readPattern:(kind,output)=>loadPattern(kind,output)});
   features=featureFactory(frame,origin,context);
-  deadline=setTimeout(()=>{if(socket===active&&!verified){onStatus('StreamHub native handshake timed out. Check web address and login.');active.close();}},10000);
+  deadline=setTimeout(()=>{if(socket===active&&!verified){onStatus('StreamHub native handshake timed out. Check web address and login.');active.close();}},20000);
   let renewed=null;
   active.onmessage=e=>{
    if(socket!==active||v!==version||!desired||typeof e.data!=='string'||e.data.length>2000000)return;const packet=e.data;

@@ -1,6 +1,6 @@
 # Haivision StreamHub Controller
 
-[**Download 0.25.1 DEV2**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.25.1-dev2.zip) · [Stable Golden](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/main)
+[**Download 0.25.2 DEV3**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.25.2-dev3.zip) · [Stable Golden](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/main)
 
 A floating Chrome panel for StreamHub routing, monitoring and MoJo Pro camera control.
 
@@ -25,11 +25,11 @@ Previews and LIVE/error indicators follow StreamHub. Availability depends on the
 4. Refresh pages where the previous panel was open.
 5. Click the extension icon on a normal webpage and allow site access.
 6. Enter the API address and API key. Default API ports are HTTP **8893** and HTTPS **8896**.
-7. Enter the StreamHub **web username and password**. The web address defaults to the same host on HTTP **8888** or HTTPS **443**; enter a different web origin if needed.
+7. Enter the StreamHub **web username and password**. Choose **HTTP** or **HTTPS**, as in the Stream Deck plugin. The web address uses the same host on HTTP **8888** or HTTPS **443**. **Advanced web address** is only for a custom host or port.
 
 Existing installations can use **Web login** in the header without removing the API connection.
 
-With a web login, previews and native controls connect directly from the extension: **no StreamHub page needs to remain open**. The password is not saved. A server-scoped session token is stored locally and reused; an expired or rejected session requires a new web login. HTTPS needs a certificate trusted by Chrome.
+With a web login, previews and native controls connect from the extension worker, with automatic HTTP polling fallback if the native WebSocket cannot open: **no StreamHub page needs to remain open**. The password is not saved. A server-scoped session token is stored locally and reused; an expired or rejected session requires a new web login. HTTPS needs a certificate trusted by Chrome.
 
 You can leave the web login blank to retain the authenticated-tab connection. Hiding the panel stops its polling and native socket.
 
