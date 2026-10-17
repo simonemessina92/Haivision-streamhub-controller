@@ -1,6 +1,6 @@
 # Haivision StreamHub Controller
 
-[**Download 0.25.0 DEV1**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.25.0-dev1.zip) · [Stable Golden](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/main)
+[**Download 0.25.1 DEV2**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.25.1-dev2.zip) · [Stable Golden](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/main)
 
 A floating Chrome panel for StreamHub routing, monitoring and MoJo Pro camera control.
 
@@ -9,7 +9,7 @@ A floating Chrome panel for StreamHub routing, monitoring and MoJo Pro camera co
 - Route an input directly to physical, NDI or IP outputs, or through an existing encoder to physical/IP outputs.
 - **Only assign** keeps ON/OFF states. **LIVE** starts the required input, encoder and outputs after routing is confirmed.
 - Control ON/OFF, hub and terminal recording, intercom and video return.
-- Use **Bulk…** for multiple channels. **UNASSIGN** clears sources and retains profiles, dashboard positions and ON/OFF states. **EJECT** removes a dashboard assignment or disconnects a terminal.
+- Use the **BULK ON / OFF / UNASSIGN / EJECT** buttons in Inputs, Outputs and Encoders. Select individual channels or **Select all**, then confirm. **UNASSIGN** clears sources and retains profiles, dashboard positions and ON/OFF states. **EJECT** removes a dashboard assignment or disconnects a terminal.
 - Open **⋯** on a channel for configuration, reported statistics and alerts. Compatible transmitters also offer existing live profiles and remote access.
 - Configure **Multiview** from 1×1 to 4×4, select sources, toggle information overlays and route it to outputs. IP output requires an encoding profile, not passthrough.
 - Read server information, current system measurements and reported licenses in **System**.
@@ -23,11 +23,15 @@ Previews and LIVE/error indicators follow StreamHub. Availability depends on the
 2. Open `chrome://extensions` and enable **Developer mode**.
 3. Choose **Load unpacked** and select `streamhub-virtual-panel`. For an update, replace the files in the existing folder and click **Reload**.
 4. Refresh pages where the previous panel was open.
-5. Open StreamHub, sign in and keep that tab open. It can stay in the background.
-6. Click the extension icon on a normal webpage and allow site access.
-7. Enter the StreamHub API address and API key. Default API ports are HTTP **8893** and HTTPS **8896**.
+5. Click the extension icon on a normal webpage and allow site access.
+6. Enter the API address and API key. Default API ports are HTTP **8893** and HTTPS **8896**.
+7. Enter the StreamHub **web username and password**. The web address defaults to the same host on HTTP **8888** or HTTPS **443**; enter a different web origin if needed.
 
-The panel can run on another tab. Native features require a signed-in tab for the same server. Hiding the panel stops its polling and native session.
+Existing installations can use **Web login** in the header without removing the API connection.
+
+With a web login, previews and native controls connect directly from the extension: **no StreamHub page needs to remain open**. The password is not saved. A server-scoped session token is stored locally and reused; an expired or rejected session requires a new web login. HTTPS needs a certificate trusted by Chrome.
+
+You can leave the web login blank to retain the authenticated-tab connection. Hiding the panel stops its polling and native socket.
 
 ## Development
 
@@ -38,10 +42,11 @@ node tools/check.cjs
 python3 tools/build.py
 ```
 
-Optional UI check, with Playwright and Chromium installed:
+Optional browser checks, with Playwright, ws and Chromium installed:
 
 ```sh
 node tools/ui-smoke.cjs
+node tools/standalone-smoke.cjs
 ```
 
 See [testing](docs/TESTING.md) for the device checks.

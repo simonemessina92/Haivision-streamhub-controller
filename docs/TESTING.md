@@ -8,18 +8,20 @@ The tests exercise actual REST/native code with simulated server responses: cros
 
 `node tools/ui-smoke.cjs` requires Playwright and a compatible Chromium installation. `STREAMHUB_CHROMIUM_PATH` can point to an installed browser. `STREAMHUB_UI_OUTPUT` selects a screenshot folder. The UI fixture checks 2/3/4-column layouts, state/details-key overlap, details, encoders, outputs, Multiview, System and the bulk dialog.
 
+`node tools/standalone-smoke.cjs` starts a local fake StreamHub and exercises the real HTTP login, browser WebSocket, identity verification, preview delivery, intercom, socket cleanup/reopen, bulk output UNASSIGN and encoder EJECT. It requires Playwright and ws. The same browser-path environment variable is supported.
+
 These checks do not establish compatibility with a real StreamHub or terminal.
 
 ## StreamHub test sequence
 
 Keep the Golden available and test this DEV on `develop` before promotion.
 
-1. Update the extension in its existing folder. Reload it and refresh both the StreamHub and panel host pages. Keep the authenticated StreamHub tab open.
+1. Update the extension in its existing folder, reload it and refresh the panel host page. Use **Web login** in the header to enter the StreamHub web username/password. Check the web origin, then close the StreamHub GUI tab. Verify that previews, state, encoders, System and controls continue to update. Hide/reopen the panel; check reconnection without another password. Test an incorrect password and an expired session. The password must not be saved.
 2. Check existing previews, ON/OFF, intercom, video return, recording and MoJo controls first.
 3. Route an input to an OFF output using **Only assign**. Verify that the route changes while input/output ON/OFF states remain unchanged. Repeat through an encoder to SDI/IP.
 4. Use **LIVE**. Compare input, encoder and output assignments and states with the native GUI. Force an assignment failure and confirm the remaining chain is not started.
 5. Use output **UNASSIGN** for direct and encoded routes. Verify that both route fields are cleared while profile, dashboard position and ON/OFF states remain unchanged. EJECT is a different operation.
-6. Test bulk operations on a small selection. For IP inputs, UNASSIGN detaches the IP profile; EJECT terminals disconnects field units. Compare the result with StreamHub. On partial failure, remaining items must stay selected.
+6. Test bulk operations on a small selection. For IP inputs, UNASSIGN detaches the IP profile; EJECT disconnects field units or detaches IP profiles; encoder EJECT removes its dashboard assignment and clears routes which reference it. Saved profiles remain. Compare the result with StreamHub. On partial failure, remaining items must stay selected.
 7. Open channel **⋯**. Compare CONFIG, STATS and ALERTS with StreamHub. Unavailable fields should say not reported. Change an existing transmitter live profile and verify device confirmation. Test remote access where supported.
 8. Configure a small Multiview, change cells and grid size, toggle overlays and route to SDI/NDI. Test IP with an assigned non-passthrough encoder. Compare both Only assign and LIVE with the native GUI.
 9. Compare System metrics and licenses with StreamHub. Old/disconnected measurements must not appear current.
@@ -27,4 +29,4 @@ Keep the Golden available and test this DEV on `develop` before promotion.
 
 ## Scope
 
-The Chrome panel retains its existing authenticated-tab bridge and single saved server. Autonomous web login and multiple saved StreamHubs are not part of 0.25.0-dev1. No stream-profile creation, editing or deletion is enabled.
+The panel supports either a direct web login or the previous authenticated-tab bridge. It retains a single saved StreamHub. Multiple saved servers are outside this DEV. No stream-profile creation, editing or deletion is enabled.

@@ -1,4 +1,4 @@
-importScripts('channel-details.js','camera-control.js','outputs.js');
+importScripts('native-auth.js','channel-details.js','camera-control.js','outputs.js');
 importScripts('native-broker.js');
 chrome.action.onClicked.addListener(async tab=>{
  try {await chrome.permissions.request({origins:['http://*/*','https://*/*']});await chrome.scripting.executeScript({target:{tabId:tab.id},files:['tab-bridge.js','panel.js']});await chrome.action.setBadgeText({tabId:tab.id,text:''});}
@@ -6,6 +6,7 @@ chrome.action.onClicked.addListener(async tab=>{
 });
 const {CameraControl}=CameraControls;const cameraControl=new CameraControl();
 const {sourceId,outputGroup,canEjectOutput,nextOutputProfile,assertConfigEject,assertConfigAdd}=OutputModel;
+const nativeAuth=createNativeAuth({storage:chrome.storage.local,connection:credentials,identity:serverIdentity});
 const truth=x=>x===true||x===1||x==='1';
 let generation=0,mutating=false,cache=null,pending=null;const deviceIdentities=new Map(),sdiConnectors=new Map();
 function normalizeAddress(value){
@@ -126,11 +127,12 @@ async function getSnapshot(){
 
 const supported=new Set(['nativeNetwork','state','connect','forget','snapshot','mojoDiscover','mojoGet','mojoSet','cameraProfile','previews','inputPower','inputControl','inputEject','assignPreset','outputAdd','outputControl','route','presets']);
 async function handle(m){
+ if(nativeAuth.types.has(m.type))return nativeAuth.handle(m);
  if(!supported.has(m.type))throw Error('Operation unavailable. Profile creation, editing and deletion are disabled.');if(m.type==='inputPower'&&!['enable','disable'].includes(m.action)||m.type==='outputControl'&&!['enable','disable','clear','unassign'].includes(m.action))throw Error('Invalid action.');
  if(m.type==='nativeNetwork'){const c=await credentials();if(m.base!==c.base)throw Error('Server mismatch.');const address=x=>typeof x==='string'&&x.length<254&&/^[A-Za-z0-9.:[\]-]+$/.test(x)?x:null;nativeNetwork.set(c.base,{localIps:(Array.isArray(m.network?.localIps)?m.network.localIps:[]).map(address).filter(Boolean).slice(0,16),publicIp:address(m.network?.publicIp),hostname:address(m.network?.hostname)});cache=null;return {};}
- if(m.type==='state'){const {connection:c}=await chrome.storage.local.get('connection');return {connected:!!c?.key,base:c?.base};}
- if(m.type==='connect'){cameraControl.clear();const c={base:normalizeAddress(m.address),key:String(m.key||'').trim()};if(!c.key)throw Error('Enter an API key.');mojoDevices.clear();cameraSessions.clear();sdiConnectors.clear();configurationCache.clear();serverIdentityCache.clear();deviceIdentities.clear();generation++;cache=null;const d=await snapshot(c);await chrome.storage.local.set({connection:c});return {base:c.base,snapshot:d};}
- if(m.type==='forget'){if(mutating)throw Error('Wait for the command to finish.');generation++;cache=null;mojoDevices.clear();cameraSessions.clear();sdiConnectors.clear();configurationCache.clear();serverIdentityCache.clear();deviceIdentities.clear();await chrome.storage.local.remove(['connection','mojoState']);return {};}
+ if(m.type==='state'){const {connection:c}=await chrome.storage.local.get('connection');return {connected:!!c?.key,base:c?.base,...await nativeAuth.publicState(c)};}
+ if(m.type==='connect'){cameraControl.clear();const c={base:normalizeAddress(m.address),key:String(m.key||'').trim()};if(!c.key)throw Error('Enter an API key.');mojoDevices.clear();cameraSessions.clear();sdiConnectors.clear();configurationCache.clear();serverIdentityCache.clear();deviceIdentities.clear();generation++;cache=null;const d=await snapshot(c),n=m.webUsername?await nativeAuth.login(c,d.serverIdentity,m):null;await chrome.storage.local.set({connection:c,nativeSession:n});return {base:c.base,snapshot:d,...await nativeAuth.publicState(c)};}
+ if(m.type==='forget'){if(mutating)throw Error('Wait for the command to finish.');generation++;cache=null;mojoDevices.clear();cameraSessions.clear();sdiConnectors.clear();configurationCache.clear();serverIdentityCache.clear();deviceIdentities.clear();await chrome.storage.local.remove(['connection','mojoState','nativeSession']);return {};}
  if(m.type==='snapshot'){if(m.fresh){cache=null;configurationCache.clear();}return getSnapshot();}
  if(m.type==='presets'){const c=await credentials(),rows=await config(c,'inputProtocol');return {inputs:Object.entries(rows).filter(([,v])=>v&&typeof v==='object'&&'channelProfileId' in v).map(([id,v])=>({id,name:v.name,type:v.type||'IP',assigned:Number(v.channelProfileId)>=0}))};}
  if(m.type==='previews'){const c=await credentials(),ids=[...new Set(m.inputs||[])];if(ids.length>16||ids.some(id=>!Number.isInteger(id)||id<1||id>32))throw Error('Invalid preview inputs.');const result=[];for(let n=0;n<ids.length;n+=4)await Promise.all(ids.slice(n,n+4).map(async id=>{try{const raw=await request(c,`/inputs/${id}/preview`,undefined,'GET',2500),d=raw.preview??raw;let thumbnail=typeof d.thumbnail==='string'?d.thumbnail:'';if(thumbnail.length>1500000)throw Error('Preview too large.');if(thumbnail&&!/^(?:data:image\/(?:jpeg|png|webp);base64,)?[A-Za-z0-9+/=\r\n]+$/.test(thumbnail))throw Error('Invalid preview image.');const mime=thumbnail.startsWith('iVBOR')?'png':thumbnail.startsWith('UklGR')?'webp':'jpeg';if(thumbnail&&!thumbnail.startsWith('data:'))thumbnail=`data:image/${mime};base64,`+thumbnail;result.push({id,thumbnail,audioLevels:Array.isArray(d.audioLevels)?d.audioLevels.slice(0,32).map(a=>({peak:Number.isFinite(a.peak)?Math.max(-50,Math.min(0,a.peak)):null,decay:Number.isFinite(a.decay)?Math.max(-50,Math.min(0,a.decay)):null})):[],time:Date.now()});}catch(e){result.push({id,error:e.message});}}));return {previews:result};}
@@ -207,4 +209,4 @@ async function handle(m){
  }finally{mutating=false;}
 }
 
-chrome.runtime.onMessage.addListener((m,s,reply)=>{if(bridgeTypes.has(m?.type))return;handle(m).then(data=>reply({ok:true,data})).catch(e=>reply({ok:false,error:e.message}));return true;});
+chrome.runtime.onMessage.addListener((m,s,reply)=>{if(bridgeTypes.has(m?.type))return;if(nativeAuth.types.has(m?.type)&&!(typeof s?.url==='string'&&s.url.startsWith(chrome.runtime.getURL('')))){reply({ok:false,error:'Web sessions are available only inside the extension panel.'});return;}handle(m).then(data=>reply({ok:true,data})).catch(e=>reply({ok:false,error:e.message}));return true;});

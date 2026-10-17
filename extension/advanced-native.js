@@ -23,7 +23,7 @@ globalThis.installAdvancedNative=function(api){
  }
  function output(m){if(!['basebandPlayer','NDIOutput','streamingOutput'].includes(m.root)||!/^\d+$/.test(String(m.output)))throw Error('Invalid output.');const r=config()?.[m.root]?.[m.output];if(!r||truth(r.lockstate)||Number(r.outputOrder)<0||r.name!==m.name)throw Error('Output changed or locked.');return r;}
  function encoder(id){const r=api.encoder(id);if(!config()?.encoderProfile?.[r.encoderProfileId])throw Error('Assign an encoder profile first.');return r;}
- function remotePlan(id){let token;try{token=JSON.parse(sessionStorage.getItem('identity')||'null')?.token;}catch{}return RemoteAccessModel.plan({origin:location.origin,token,role,channel:{...channels()[id-1],id},device:devices().get(id)||{},config:config()});}
+ function remotePlan(id){let token;try{token=JSON.parse(sessionStorage.getItem('identity')||'null')?.token;}catch{}const web=api.webContext?.();return RemoteAccessModel.plan({origin:web?.origin||location.origin,token:web?.token||token,role,channel:{...channels()[id-1],id},device:devices().get(id)||{},config:config()});}
  function build(m){
   if(m.action==='remoteAccess'){const r=terminal(m.input,m.uid),instance=r.instanceId,plan=remotePlan(m.input);if(!plan)throw Error('Remote access unavailable for this transmitter or account.');if(!plan.replace)return {immediate:true,data:{url:plan.url}};remoteUrl=null;send('remoteControlTokenReplace',{url:plan.url,hardwareIdentifier:plan.hardwareIdentifier});return {event:'remoteControlOpen',matches:()=>{if(terminal(m.input,m.uid).instanceId!==instance)throw Error('Transmitter changed.');return !!RemoteAccessModel.validateResponse(remoteUrl,plan);},data:()=>({url:RemoteAccessModel.validateResponse(remoteUrl,plan)})};}
 

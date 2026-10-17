@@ -1,7 +1,7 @@
 /* Native StreamHub commands, following main.5329d4bc.chunk.js. No profile CRUD. */
 globalThis.installNativeFeatures=function(frame,targetOrigin,context){
  let config=null,metadata={},license=null,channels=[],devices=new Map(),encStatus=[],pending=null,revision=0;
- const advanced=typeof installAdvancedNative==='function'?installAdvancedNative({send,config:()=>config,channels:()=>channels,devices:()=>devices,metadata:()=>metadata,license:()=>license,mutate,encoder,truth:v=>v===true||v===1||v==='1'}):null;
+ const advanced=typeof installAdvancedNative==='function'?installAdvancedNative({send,webContext:()=>({origin:context().webOrigin||location.origin,token:context().token}),config:()=>config,channels:()=>channels,devices:()=>devices,metadata:()=>metadata,license:()=>license,mutate,encoder,truth:v=>v===true||v===1||v==='1'}):null;
  const clone=x=>JSON.parse(JSON.stringify(x)),truth=x=>x===true||x===1||x==='1',id=x=>Number.isInteger(Number(x))&&Number(x)>=1&&Number(x)<=32?Number(x):null;
  function send(event,...args){const c=context();if(!c.allowed||!c.verified||!c.socket||c.socket.readyState!==1)throw Error('Open a signed-in StreamHub page for this server.');c.socket.send('42'+JSON.stringify([event,...args]));}
  function channel(n){const r=channels[n-1];if(!r||!r.product||r.product==='IP-INPUT'||!(Number(r.connectionStatus)===1||Number(r.channelStatus)>0))throw Error('The terminal is no longer connected.');return r;}
@@ -32,7 +32,7 @@ globalThis.installNativeFeatures=function(frame,targetOrigin,context){
  if(m.action==='encoderPower'){const r=encoder(enc);if(m.expectedProfile!==undefined&&String(r.encoderProfileId)!==String(m.expectedProfile))throw Error('Encoder profile changed.');if(typeof m.enabled!=='boolean'||m.enabled&&!config.encoderProfile?.[r.encoderProfileId])throw Error('Select an existing encoder profile first.');return mutate('enc',enc,{enable:m.enabled});}
  if(['encoderProfile','encoderAdd'].includes(m.action)){const r=encoder(enc);if(m.action==='encoderAdd'&&Number(r.encoderProfileId)!==-1)throw Error('Encoder slot is already assigned.');if(truth(r.enable))throw Error('Stop the encoder before changing its profile.');if(!/^\d+$/.test(String(m.profile))||!config.encoderProfile?.[m.profile])throw Error('Encoder profile unavailable.');return mutate('enc',enc,{encoderProfileId:Number(m.profile),inputIndex:-1});}
  if(m.action==='encoderEject'){
- const e=encoder(enc);if(Number(e.encoderProfileId)<0)throw Error('Encoder is not on the dashboard.');
+ const e=encoder(enc);if(m.expectedProfile!==undefined&&String(e.encoderProfileId)!==String(m.expectedProfile))throw Error('Encoder profile changed.');if(Number(e.encoderProfileId)<0)throw Error('Encoder is not on the dashboard.');
  const steps=[];
  if(truth(e.enable))steps.push(()=>mutate('enc',enc,{enable:false}));
  if(Object.values(config.channelProfile||{}).some(r=>Number(r.videoIFBEncoderIdx)===enc-1))steps.push(()=>mutateRows('channelProfile',r=>Number(r.videoIFBEncoderIdx)===enc-1,{videoIFBEncoderIdx:-1}));
@@ -52,6 +52,7 @@ globalThis.installNativeFeatures=function(frame,targetOrigin,context){
  const reply=(ok,data,error)=>frame.contentWindow.postMessage({type:'sh-native-command-result',base:c.base,id:m.id,ok,data,error},targetOrigin);
  const kind=m.kind,n=Number(m.output),root=kind==='SDI'?'basebandPlayer':kind==='NDI'?'NDIOutput':null;
  if(!root||!Number.isInteger(n)||n<1||n>32||!config?.[root]?.[n]||Number(config[root][n].outputOrder)<0||!/^[A-Za-z0-9-]{1,80}$/.test(m.id)){reply(false,null,'Output pattern unavailable.');return;}
+ if(c.readPattern){try{const result=await c.readPattern(kind,n);if(context().base===c.base&&context().verified&&context().allowed)reply(true,result);}catch(error){reply(false,null,error.message);}return;}
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),6000);
  try{const response=await fetch('/thumbnails/'+(kind==='SDI'?'output':'NDIOutput')+'/'+n+'/'+Date.now(),{credentials:'same-origin',cache:'no-store',signal:controller.signal});if(!response.ok)throw Error('Output pattern unavailable.');const mime=response.headers.get('content-type')?.split(';')[0];if(!['image/jpeg','image/png','image/webp'].includes(mime))throw Error('Invalid output pattern.');const bytes=new Uint8Array(await response.arrayBuffer());if(bytes.length>1000000)throw Error('Output pattern too large.');let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));if(context().base!==c.base||!context().verified||!context().allowed)return;reply(true,{thumbnail:'data:'+mime+';base64,'+btoa(binary)});}catch(error){reply(false,null,error.message);}finally{clearTimeout(timer);}
  }
