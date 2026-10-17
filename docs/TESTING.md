@@ -1,42 +1,30 @@
-# Device acceptance checks
+# Testing
 
-Use a test StreamHub with existing profiles. This release adds no profile creation or deletion.
+## Automated checks
 
-1. Sign in to StreamHub on tab A. Open a normal webpage on tab B and show the overlay there.
-2. Confirm native previews update on B while A stays in the background, including an input that is OFF.
-3. Use a REST IP/hostname alias different from A's address. Confirm the same server is recognized.
-4. With two different StreamHub servers signed in, confirm the controller uses the configured server only.
-5. Test intercom ON/OFF, terminal recording and a known working video-return assignment.
-6. Check routing and MoJo changes against the native GUI/device.
-7. Hide the overlay. Confirm its additional Socket.IO connection closes; the native GUI's own connection remains.
-8. Reopen and confirm the Inputs view and native updates resume.
-9. Close A, reload it, or sign out. Native controls must become unavailable and must not silently switch to another server. Sign back in and check reconnection.
-10. Check card and RCP controls at minimum and maximum overlay width, using mouse and touchscreen.
+Run `node tools/check.cjs` and `python3 tools/build.py`.
 
-Automated messaging/socket tests do not establish remote-device reception. Record actual device results separately before promoting to `main`.
+The tests exercise actual REST/native code with simulated server responses: cross-tab server matching, bridge cleanup, error messages, dedicated output previews, direct and encoded routing, source identity checks, Multiview changes, preserved ON/OFF states, UNASSIGN, live-profile confirmation, recording confirmation and camera pending-state handling.
 
-## Native diagnostic messages (0.24.1-dev2)
+`node tools/ui-smoke.cjs` requires Playwright and a compatible Chromium installation. `STREAMHUB_CHROMIUM_PATH` can point to an installed browser. `STREAMHUB_UI_OUTPUT` selects a screenshot folder. The UI fixture checks 2/3/4-column layouts, state/details-key overlap, details, encoders, outputs, Multiview, System and the bulk dialog.
 
-- Compare an already-failing SRT output with the native GUI: both must display “Bad destination or credentials”, with output power still ON.
-- Compare an input/encoder error and an output warning with the native GUI. Terminal errors with bitrate/resolution parameters must include those exact parameters.
-- Resolve the error in StreamHub or switch the output OFF. Its overlay and colored state must clear on readback.
-- Click a long diagnostic to read the full text. This must not select an output or perform routing.
-- Disconnect the API/source tab and reconnect; old terminal errors must not transfer to a replacement unit.
+These checks do not establish compatibility with a real StreamHub or terminal.
 
-## Assignment and LIVE (0.24.2-dev3)
+## StreamHub test sequence
 
-- Select an OFF source and multiple outputs. Cancel ASSIGN: no requests.
-- Choose Assign only: output routing must work without starting the input.
-- Choose Assign and start input: all routes must confirm before the source ON command. If any route fails, the input must not be started.
-- Starting an already ON input must not send a duplicate start command.
-- LIVE appears only for reported runtime status 2; output status 1 stays ON, OFF stays OFF, errors/warnings retain their native text.
-- A source replaced between assignment and start must not receive the original start command.
+Keep the Golden available and test this DEV on `develop` before promotion.
 
-## Output preview parity (0.24.3-dev4)
+1. Update the extension in its existing folder. Reload it and refresh both the StreamHub and panel host pages. Keep the authenticated StreamHub tab open.
+2. Check existing previews, ON/OFF, intercom, video return, recording and MoJo controls first.
+3. Route an input to an OFF output using **Only assign**. Verify that the route changes while input/output ON/OFF states remain unchanged. Repeat through an encoder to SDI/IP.
+4. Use **LIVE**. Compare input, encoder and output assignments and states with the native GUI. Force an assignment failure and confirm the remaining chain is not started.
+5. Use output **UNASSIGN** for direct and encoded routes. Verify that both route fields are cleared while profile, dashboard position and ON/OFF states remain unchanged. EJECT is a different operation.
+6. Test bulk operations on a small selection. For IP inputs, UNASSIGN detaches the IP profile; EJECT terminals disconnects field units. Compare the result with StreamHub. On partial failure, remaining items must stay selected.
+7. Open channel **⋯**. Compare CONFIG, STATS and ALERTS with StreamHub. Unavailable fields should say not reported. Change an existing transmitter live profile and verify device confirmation. Test remote access where supported.
+8. Configure a small Multiview, change cells and grid size, toggle overlays and route to SDI/NDI. Test IP with an assigned non-passthrough encoder. Compare both Only assign and LIVE with the native GUI.
+9. Compare System metrics and licenses with StreamHub. Old/disconnected measurements must not appear current.
+10. Close a terminal connection or replace a source while its dialog is open. Commands must not operate on a replacement device. Hide the panel and confirm native subscriptions stop.
 
-- With a connected but OFF MoJo input, assign NDI and SRT outputs using Only assign. NDI should show the native ready pattern, and SRT should show no input thumbnail.
-- Start the source and compare dedicated NDI/physical previews with the native dashboard.
-- Stop the source: the ready pattern must replace the output live frame even while input previews remain available.
-- Assign a software encoder to an IP output: its thumbnail must come from that encoder.
-- If the native pattern endpoint fails, show Output ready rather than an unrelated input image.
-- Hide the controller: no additional pattern requests should continue.
+## Scope
+
+The Chrome panel retains its existing authenticated-tab bridge and single saved server. Autonomous web login and multiple saved StreamHubs are not part of 0.25.0-dev1. No stream-profile creation, editing or deletion is enabled.

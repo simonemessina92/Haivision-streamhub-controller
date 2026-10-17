@@ -29,7 +29,7 @@ async function attachNext(route){
   while(current(route)&&route.queue.length){
    const provider=route.queue.shift();route.provider=provider;route.nonce=crypto.randomUUID();route.deadline=Date.now()+4500;
    try{
-    await chrome.scripting.executeScript({target:{tabId:provider},files:['native-features.js','native-preview.js','native-provider.js']});
+    await chrome.scripting.executeScript({target:{tabId:provider},files:['channel-details.js','multiview.js','licenses.js','remote-access.js','advanced-native.js','native-features.js','native-preview.js','native-provider.js']});
     if(!current(route)){await detach(route);return;}
     const ack=await tell(provider,{type:'sh-provider-start',consumer:route.consumer,nonce:route.nonce,session:route.session});
     if(ack?.ok)return;

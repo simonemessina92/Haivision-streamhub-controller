@@ -1,30 +1,10 @@
-Haivision Streamhub Controller — 0.24.3 Golden
+Haivision StreamHub Controller 0.25.0 DEV1
 
-Floating Chrome panel for StreamHub routing, monitoring and MoJo Pro camera control.
+Chrome: enable Developer mode in chrome://extensions, choose Load unpacked and select this folder.
+For an update, replace the files in the existing extension folder, reload the extension and refresh the open pages.
 
-Assign inputs to physical, NDI and IP outputs; control ON/OFF, recording,
-EJECT, existing encoders, intercom and video return. Monitor previews,
-LIVE status and StreamHub error messages. MoJo Pro controls follow the
-connected camera capabilities.
+Keep a signed-in StreamHub tab open for the same server. The control panel can open on another normal webpage. Enter the REST API address (HTTP 8893 / HTTPS 8896) and API key.
 
-INSTALL
-1. Extract the ZIP.
-2. Open chrome://extensions and enable Developer mode.
-3. Click Load unpacked and select this folder.
-4. Sign in to StreamHub and keep its tab open, including in the background.
-5. Open the panel on a normal webpage and allow site access.
-6. Enter the StreamHub API address and API key (HTTP default: port 8893).
+Inputs, outputs, encoders, MoJo Pro, Multiview and System are available according to server capabilities. Use the channel dots for details and Bulk for multiple operations. Only assign keeps power states; LIVE starts the required routing chain. UNASSIGN retains profiles and dashboard positions; EJECT is a separate operation.
 
-ASSIGN
-Only assign: route the selected source to the selected outputs.
-LIVE: assign the outputs, then start the source input.
-
-Create and edit stream profiles in StreamHub. EJECT removes the dashboard
-assignment while preserving its saved profile. Hiding the panel pauses
-its polling and native connection.
-
-UPDATE
-Replace the files, reload the extension in chrome://extensions, and
-refresh pages where the panel was open.
-
-https://github.com/simonemessina92/Haivision-streamhub-controller
+This is a development build. Automated checks use simulated responses. Test operation on StreamHub before production use.

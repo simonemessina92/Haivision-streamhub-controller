@@ -1,38 +1,47 @@
-# Haivision Streamhub Controller
+# Haivision StreamHub Controller
 
-[**Download 0.24.3 Golden**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/main/downloads/haivision-streamhub-controller-v0.24.3.zip)
+[**Download 0.25.0 DEV1**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.25.0-dev1.zip) · [Stable Golden](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/main)
 
 A floating Chrome panel for StreamHub routing, monitoring and MoJo Pro camera control.
 
-## What it does
+## Controls
 
-- Assign one input to multiple physical, NDI or IP outputs. Choose **Only assign** or **LIVE** to also start the source input.
-- Control input/output ON/OFF, recording and EJECT using existing StreamHub profiles.
-- Show previews, LIVE status and StreamHub error messages.
-- Manage existing encoder profiles, terminal intercom and video return.
-- Control MoJo Pro cameras: white balance, ISO, shutter, focus, zoom and audio gain, according to the connected device's capabilities.
-- Resize the panel between two and four columns and scroll with mouse or touchscreen.
+- Route an input directly to physical, NDI or IP outputs, or through an existing encoder to physical/IP outputs.
+- **Only assign** keeps ON/OFF states. **LIVE** starts the required input, encoder and outputs after routing is confirmed.
+- Control ON/OFF, hub and terminal recording, intercom and video return.
+- Use **Bulk…** for multiple channels. **UNASSIGN** clears sources and retains profiles, dashboard positions and ON/OFF states. **EJECT** removes a dashboard assignment or disconnects a terminal.
+- Open **⋯** on a channel for configuration, reported statistics and alerts. Compatible transmitters also offer existing live profiles and remote access.
+- Configure **Multiview** from 1×1 to 4×4, select sources, toggle information overlays and route it to outputs. IP output requires an encoding profile, not passthrough.
+- Read server information, current system measurements and reported licenses in **System**.
+- Control MoJo Pro white balance, ISO, shutter, focus, zoom and audio gain according to camera capabilities.
 
-Create and edit stream profiles in StreamHub. **EJECT** removes a dashboard assignment and keeps its saved profile.
+Previews and LIVE/error indicators follow StreamHub. Availability depends on the server version, licenses and connected device. Create and edit stream profiles in StreamHub.
 
-## Install
+## Install or update
 
 1. Download and extract the ZIP.
 2. Open `chrome://extensions` and enable **Developer mode**.
-3. Click **Load unpacked** and select the `streamhub-virtual-panel` folder.
-4. Open StreamHub and sign in. Keep this tab open; it can stay in the background.
-5. Click the extension icon on a normal webpage and allow the requested site access.
-6. Enter the StreamHub API address and API key. HTTP uses port **8893** by default; include the port when using another address.
+3. Choose **Load unpacked** and select `streamhub-virtual-panel`. For an update, replace the files in the existing folder and click **Reload**.
+4. Refresh pages where the previous panel was open.
+5. Open StreamHub, sign in and keep that tab open. It can stay in the background.
+6. Click the extension icon on a normal webpage and allow site access.
+7. Enter the StreamHub API address and API key. Default API ports are HTTP **8893** and HTTPS **8896**.
 
-The panel can run on a different tab from StreamHub. Native previews and terminal controls require a signed-in tab for the same server. Hiding the panel pauses its polling and native connection.
-
-To update, replace the extension files, click **Reload** in `chrome://extensions`, then refresh pages where the panel was open.
+The panel can run on another tab. Native features require a signed-in tab for the same server. Hiding the panel stops its polling and native session.
 
 ## Development
 
-`main` contains the Golden build. `develop` is used for testing future changes.
+`main` contains the Golden build. `develop` contains the test build. This DEV has automated tests with simulated responses and Chromium layout checks; device operation needs testing on StreamHub.
 
 ```sh
 node tools/check.cjs
 python3 tools/build.py
 ```
+
+Optional UI check, with Playwright and Chromium installed:
+
+```sh
+node tools/ui-smoke.cjs
+```
+
+See [testing](docs/TESTING.md) for the device checks.

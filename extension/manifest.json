@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Haivision Streamhub Controller",
-  "version": "0.24.3",
-  "description": "StreamHub input/output routing, existing profiles, previews and MoJo Pro RCP",
+  "version": "0.25.0",
+  "description": "StreamHub routing, encoders, Multiview, channel details and MoJo Pro camera control",
   "permissions": [
     "storage",
     "activeTab",
@@ -40,7 +40,12 @@
         "logo.png",
         "features.js",
         "theme.css",
-        "diagnostics.js"
+        "diagnostics.js",
+        "channel-details.js",
+        "multiview.js",
+        "licenses.js",
+        "advanced-ui.js",
+        "advanced.css"
       ],
       "matches": [
         "http://*/*",
@@ -53,5 +58,6 @@
     "32": "icons/icon-32.png",
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
-  }
+  },
+  "version_name": "0.25.0-dev1"
 }
