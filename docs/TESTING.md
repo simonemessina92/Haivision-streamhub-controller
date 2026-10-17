@@ -10,6 +10,8 @@ The tests exercise actual REST/native code with simulated server responses: cros
 
 `node tools/standalone-smoke.cjs` starts a local fake StreamHub and exercises the real HTTP login, worker WebSocket through the runtime-port facade, identity verification, preview delivery, intercom, socket cleanup/reopen, bulk output UNASSIGN and encoder EJECT. It requires Playwright and ws. Set `STREAMHUB_POLLING=1` with engine.io installed to reject WebSocket connections and exercise the real Engine.IO HTTP fallback. `STREAMHUB_EXTENSION=1` optionally loads the extension in a full Chromium browser; its temporary test manifest grants only localhost access. This mode requires support for extensions and local process sockets. The same browser-path environment variable is supported.
 
+`STREAMHUB_LOGIN_FAILURE=1` exercises a rejected initial web login, verifies the API workspace stays connected, then signs in from the header and repeats the native-control checks. Automatic web-origin selection is checked against both API protocols.
+
 These checks do not establish compatibility with a real StreamHub or terminal.
 
 ## StreamHub test sequence

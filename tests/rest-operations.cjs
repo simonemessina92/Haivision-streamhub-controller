@@ -10,5 +10,7 @@ vm.createContext(c);vm.runInContext(fs.readFileSync(path.join(root,'background.j
  const fail=await c.handle({type:'outputControl',keys:[key],action:'enable',expectedSource:1,expectedEncoder:null});assert.equal(fail.results[0].ok,false);assert(fail.results[0].message.includes('changed'));
  await assert.rejects(c.handle({type:'inputPower',input:1,expectedUID:'replacement',action:'disable'}));await assert.rejects(c.handle({type:'profileCreate'}));
  assert.deepEqual(configs.streamingOutput,before.streamingOutput);assert(!requests.some(r=>r.p==='/config/item'&&/name|bitrate/.test(r.body.item)));
+ // A failed optional web login must never undo a successful REST connection.
+ const connected=await c.handle({type:'connect',address:'https://fixture:8896',key:'secret',webUsername:'admin',webPassword:'unavailable',webOrigin:'https://web.example'});assert(connected.webError);assert.equal(connected.snapshot.inputs.length,1);assert.equal((await c.handle({type:'state'})).connected,true);assert.equal((await c.handle({type:'snapshot',fresh:true})).inputs.length,1);assert(!JSON.stringify(values).includes('unavailable'));assert.equal(values.nativeSession,null);
  console.log('PASS REST operations: all-schema UNASSIGN clears both routes, retains power/profile/order, assign-only leaves OFF outputs OFF, stale-route/UID guards and profile CRUD rejection.');
 })().catch(e=>{console.error(e);process.exit(1)});
