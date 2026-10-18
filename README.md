@@ -1,6 +1,6 @@
 # Haivision StreamHub Controller
 
-[**Download 0.25.4 DEV5**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.25.4-dev5.zip) · [Stable Golden](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/main)
+[**Download 0.25.5 DEV6**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.25.5-dev6.zip) · [Stable Golden](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/main)
 
 A floating Chrome panel for StreamHub routing, monitoring and MoJo Pro camera control.
 
@@ -24,8 +24,10 @@ Previews and LIVE/error indicators follow StreamHub. Availability depends on the
 3. Choose **Load unpacked** and select `streamhub-virtual-panel`. For an update, replace the files in the existing folder and click **Reload**.
 4. Refresh pages where the previous panel was open.
 5. Click the extension icon on a normal webpage and allow site access.
-6. Enter the REST API address and API key, then choose the API protocol. Default API ports are HTTP **8893** and HTTPS **8896**. An explicit API URL sets the selector. Changing the selector updates the URL and standard API port; custom ports are retained. A web GUI hostname must also expose the REST API ports to work as an API address.
-7. Enter the StreamHub **web username and password**. Leave the web protocol on **Automatic** to follow the API protocol, matching the Stream Deck native connection. HTTP uses **8888**, HTTPS uses **443**. You can select a different web protocol explicitly. **Advanced web address** is only for a custom host or port.
+6. Enter the StreamHub address and API key. The extension checks HTTPS **8896** and HTTP **8893** and selects a responding API, preferring usable HTTPS.
+7. Enter the web username and password for previews and device controls. Web access is detected independently on HTTPS **443** and HTTP **8888**. The probes send no credentials.
+
+An explicit API URL fixes that endpoint. Use **Advanced web address** only for a custom web host or port. The API address appears in the footer; the Web button shows its endpoint on hover.
 
 API access and web login are independent. A failed web login leaves the API panel connected; use **Web login** in the header to retry. Existing installations can add or update web access without removing the API connection.
 

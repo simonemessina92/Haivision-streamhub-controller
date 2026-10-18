@@ -43,6 +43,9 @@ jobs:
           # Small valid PNG for the preview-delivery check.
           Path(os.environ['RUNNER_TEMP']+'/sh-preview.png').write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aRz8AAAAASUVORK5CYII='))
           PY
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$RUNNER_TEMP/sh-tls/untrusted-key.pem" -out "$RUNNER_TEMP/sh-tls/untrusted-cert.pem" -days 2 -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1'
+          echo "STREAMHUB_UNTRUSTED_CERT=$RUNNER_TEMP/sh-tls/untrusted-cert.pem" >> "$GITHUB_ENV"
+          echo "STREAMHUB_UNTRUSTED_KEY=$RUNNER_TEMP/sh-tls/untrusted-key.pem" >> "$GITHUB_ENV"
       - name: Load actual extension over HTTP
         env:
           STREAMHUB_EXTENSION: '1'
@@ -51,6 +54,9 @@ jobs:
           export STREAMHUB_CHROMIUM_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
           export STREAMHUB_PREVIEW_FILE="$RUNNER_TEMP/sh-preview.png"
           node tools/standalone-smoke.cjs
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$RUNNER_TEMP/sh-tls/untrusted-key.pem" -out "$RUNNER_TEMP/sh-tls/untrusted-cert.pem" -days 2 -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1'
+          echo "STREAMHUB_UNTRUSTED_CERT=$RUNNER_TEMP/sh-tls/untrusted-cert.pem" >> "$GITHUB_ENV"
+          echo "STREAMHUB_UNTRUSTED_KEY=$RUNNER_TEMP/sh-tls/untrusted-key.pem" >> "$GITHUB_ENV"
       - name: Load actual extension over HTTPS
         env:
           STREAMHUB_EXTENSION: '1'
