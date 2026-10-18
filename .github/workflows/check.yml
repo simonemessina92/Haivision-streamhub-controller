@@ -20,3 +20,55 @@ jobs:
         with:
           name: streamhub-controller-${{ github.ref_name }}
           path: downloads/*.zip
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser fixtures
+        run: |
+          npm install --prefix "$RUNNER_TEMP/sh-browser" playwright ws engine.io
+          "$RUNNER_TEMP/sh-browser/node_modules/.bin/playwright" install --with-deps chromium
+          echo "NODE_PATH=$RUNNER_TEMP/sh-browser/node_modules" >> "$GITHUB_ENV"
+      - name: Prepare local HTTPS fixture
+        run: |
+          mkdir -p "$RUNNER_TEMP/sh-tls"
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout "$RUNNER_TEMP/sh-tls/key.pem" -out "$RUNNER_TEMP/sh-tls/cert.pem" -days 2 -subj '/CN=localhost' -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1'
+          echo "STREAMHUB_TLS_SPKI=$(openssl x509 -in "$RUNNER_TEMP/sh-tls/cert.pem" -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256 -binary | openssl base64 -A)" >> "$GITHUB_ENV"
+          python3 - <<'PY'
+          import base64, os
+          from pathlib import Path
+          # Small valid PNG for the preview-delivery check.
+          Path(os.environ['RUNNER_TEMP']+'/sh-preview.png').write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aRz8AAAAASUVORK5CYII='))
+          PY
+      - name: Load actual extension over HTTP
+        env:
+          STREAMHUB_EXTENSION: '1'
+          STREAMHUB_LOGIN_FAILURE: '1'
+        run: |
+          export STREAMHUB_CHROMIUM_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          export STREAMHUB_PREVIEW_FILE="$RUNNER_TEMP/sh-preview.png"
+          node tools/standalone-smoke.cjs
+      - name: Load actual extension over HTTPS
+        env:
+          STREAMHUB_EXTENSION: '1'
+        run: |
+          export STREAMHUB_CHROMIUM_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          export STREAMHUB_TLS_CERT="$RUNNER_TEMP/sh-tls/cert.pem"
+          export STREAMHUB_TLS_KEY="$RUNNER_TEMP/sh-tls/key.pem"
+          export NODE_EXTRA_CA_CERTS="$STREAMHUB_TLS_CERT"
+          export STREAMHUB_PREVIEW_FILE="$RUNNER_TEMP/sh-preview.png"
+          node tools/standalone-smoke.cjs
+      - name: HTTPS polling fallback with actual extension
+        env:
+          STREAMHUB_EXTENSION: '1'
+          STREAMHUB_POLLING: '1'
+        run: |
+          export STREAMHUB_CHROMIUM_PATH="$(node -e "console.log(require('playwright').chromium.executablePath())")"
+          export STREAMHUB_TLS_CERT="$RUNNER_TEMP/sh-tls/cert.pem"
+          export STREAMHUB_TLS_KEY="$RUNNER_TEMP/sh-tls/key.pem"
+          export NODE_EXTRA_CA_CERTS="$STREAMHUB_TLS_CERT"
+          export STREAMHUB_PREVIEW_FILE="$RUNNER_TEMP/sh-preview.png"
+          node tools/standalone-smoke.cjs

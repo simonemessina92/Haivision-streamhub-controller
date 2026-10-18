@@ -12,6 +12,8 @@ The tests exercise actual REST/native code with simulated server responses: cros
 
 `STREAMHUB_LOGIN_FAILURE=1` exercises a rejected initial web login, verifies the API workspace stays connected, then signs in from the header and repeats the native-control checks. Automatic web-origin selection is checked against both API protocols.
 
+TLS integration: set `STREAMHUB_TLS_CERT` and `STREAMHUB_TLS_KEY` to a localhost certificate/key pair and trust that certificate in the Node fixture worker with `NODE_EXTRA_CA_CERTS`. The browser certificate exception is confined to the temporary local test context; production code retains normal certificate validation. Both HTTP/WS and HTTPS/WSS paths, rejected initial login, protocol-selector changes, preview images and HTTPS polling fallback were exercised for DEV5. Chrome runtime ports and webRequest events are simulated in the default harness; this does not validate Chrome policies on a user machine.
+
 These checks do not establish compatibility with a real StreamHub or terminal.
 
 ## StreamHub test sequence

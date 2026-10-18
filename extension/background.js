@@ -1,4 +1,4 @@
-importScripts('native-transport.js','native-auth.js','channel-details.js','camera-control.js','outputs.js');
+importScripts('connection-endpoints.js','network.js','native-transport.js','native-auth.js','channel-details.js','camera-control.js','outputs.js');
 importScripts('native-broker.js');
 chrome.action.onClicked.addListener(async tab=>{
  try {await chrome.permissions.request({origins:['http://*/*','https://*/*']});await chrome.scripting.executeScript({target:{tabId:tab.id},files:['tab-bridge.js','panel.js']});await chrome.action.setBadgeText({tabId:tab.id,text:''});}
@@ -6,22 +6,16 @@ chrome.action.onClicked.addListener(async tab=>{
 });
 const {CameraControl}=CameraControls;const cameraControl=new CameraControl();
 const {sourceId,outputGroup,canEjectOutput,nextOutputProfile,assertConfigEject,assertConfigAdd}=OutputModel;
-const nativeAuth=createNativeAuth({storage:chrome.storage.local,connection:credentials,identity:serverIdentity});
-const nativeTransports=typeof chrome.runtime.onConnect!=='undefined'?createNativeTransport({loadSession:()=>nativeAuth.handle({type:'webSession'})}):null;
+const hubNetwork=createStreamHubNetwork();
+const nativeAuth=createNativeAuth({fetchFn:hubNetwork.fetch,storage:chrome.storage.local,connection:credentials,identity:serverIdentity});
+const nativeTransports=typeof chrome.runtime.onConnect!=='undefined'?createNativeTransport({fetchFn:hubNetwork.fetch,loadSession:()=>nativeAuth.handle({type:'webSession'})}):null;
 const truth=x=>x===true||x===1||x==='1';
 let generation=0,mutating=false,cache=null,pending=null;const deviceIdentities=new Map(),sdiConnectors=new Map();
-function normalizeAddress(value){
- const text=String(value||'').trim();if(!text)throw Error('Enter a StreamHub IP address or hostname.');
- const explicit=/^https?:\/\//i.test(text);
- const u=new URL(explicit?text:'http://'+text);
- if(!['http:','https:'].includes(u.protocol)||u.username||u.password||u.search||u.hash||!u.hostname)throw Error('Enter an IP address or hostname without credentials or query parameters.');
- if(u.pathname!=='/'&&u.pathname!=='')throw Error('Enter only the IP address or hostname, without /rest-api/doc/.');
- if(!u.port)u.port=u.protocol==='https:'?'8896':'8893';return u.origin;
-}
+function normalizeAddress(value){return StreamHubEndpoints.api(value);}
 async function request(c,path,body,method,timeout=8000){
  if(path.startsWith('/config')){const read=/^\/config\?path=(inputProtocol|channelProfile|basebandPlayer|streamingOutput|NDIOutput)$/.test(path)&&!body&&(!method||method==='GET');const assignment=path==='/config/item'&&method==='POST'&&body&&/^(inputProtocol\.\d+\.(channelProfileId|enable)|(basebandPlayer|streamingOutput|NDIOutput)\.\d+\.(channelIndex|encoderIndex|enable|outputOrder))$/.test(body.item);if(!read&&!assignment)throw Error('Profile creation, editing and deletion are disabled.');}
  const u=new URL(c.base+path);u.searchParams.set('api_key',c.key);
- let r;try{r=await fetch(u.href,{method:method||(body?'POST':'GET'),headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,cache:'no-store',redirect:'error',signal:AbortSignal.timeout(timeout)});}catch(error){const code=String(error.cause?.code||error.code||error.name||'');const detail=/CERT|SELF_SIGNED|TLS|UNABLE_TO_VERIFY/.test(code)?'HTTPS certificate is not trusted or does not match this address. Use the certificate hostname and a trusted certificate.':/Timeout|Abort|ETIMEDOUT/.test(code)?'Request timed out. Check API port 8893 (HTTP) or 8896 (HTTPS) and the firewall.':/ECONNREFUSED/.test(code)?'Connection refused. Check the REST API port.':'Check the REST API address, port and network.';throw Error('REST API unreachable at '+c.base+'. '+detail);}
+ let r;try{r=await hubNetwork.fetch(u.href,{method:method||(body?'POST':'GET'),headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,cache:'no-store',redirect:'error',signal:AbortSignal.timeout(timeout)});}catch(error){throw Error('REST API connection failed: '+error.message);}
  if(!r.ok)throw Error(`API HTTP ${r.status}${r.status===401?' — incorrect API key':''}`);
  let d;try{d=await r.json();}catch{throw Error('The endpoint did not return REST API JSON. Web GUI ports 8888/443 are separate from API ports 8893/8896.');}
  if(d.success===false||d.error||typeof d.res==='number'&&d.res<0)throw Error('API request rejected: '+(body?.item||path.split('?')[0]));return d;

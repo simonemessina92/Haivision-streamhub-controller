@@ -1,6 +1,6 @@
 # Haivision StreamHub Controller
 
-[**Download 0.25.3 DEV4**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.25.3-dev4.zip) · [Stable Golden](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/main)
+[**Download 0.25.4 DEV5**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.25.4-dev5.zip) · [Stable Golden](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/main)
 
 A floating Chrome panel for StreamHub routing, monitoring and MoJo Pro camera control.
 
@@ -24,12 +24,12 @@ Previews and LIVE/error indicators follow StreamHub. Availability depends on the
 3. Choose **Load unpacked** and select `streamhub-virtual-panel`. For an update, replace the files in the existing folder and click **Reload**.
 4. Refresh pages where the previous panel was open.
 5. Click the extension icon on a normal webpage and allow site access.
-6. Enter the REST API address and API key, then choose the API protocol. Default API ports are HTTP **8893** and HTTPS **8896**. An explicit API URL overrides the selector. A web GUI hostname must also expose the REST API ports to work as an API address.
+6. Enter the REST API address and API key, then choose the API protocol. Default API ports are HTTP **8893** and HTTPS **8896**. An explicit API URL sets the selector. Changing the selector updates the URL and standard API port; custom ports are retained. A web GUI hostname must also expose the REST API ports to work as an API address.
 7. Enter the StreamHub **web username and password**. Leave the web protocol on **Automatic** to follow the API protocol, matching the Stream Deck native connection. HTTP uses **8888**, HTTPS uses **443**. You can select a different web protocol explicitly. **Advanced web address** is only for a custom host or port.
 
 API access and web login are independent. A failed web login leaves the API panel connected; use **Web login** in the header to retry. Existing installations can add or update web access without removing the API connection.
 
-With a web login, previews and native controls connect from the extension worker, with automatic HTTP polling fallback if the native WebSocket cannot open: **no StreamHub page needs to remain open**. The password is not saved. A server-scoped session token is stored locally and reused; an expired or rejected session requires a new web login. HTTPS needs a certificate trusted by Chrome.
+With a web login, previews and native controls connect from the extension worker, with automatic HTTP polling fallback if the native WebSocket cannot open: **no StreamHub page needs to remain open**. The password is not saved. A server-scoped session token is stored locally and reused; an expired or rejected session requires a new web login. Both HTTP and HTTPS are supported independently for API and web access. HTTPS needs a certificate trusted by Chrome and valid for the selected hostname. Connection failures show the endpoint and Chrome network error when available, without API keys or session tokens.
 
 You can leave the web login blank to retain the authenticated-tab connection. Hiding the panel stops its polling and native socket.
 
