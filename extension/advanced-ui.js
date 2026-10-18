@@ -8,9 +8,11 @@ function closeAdvancedViews(){if(detailDialog){detailDialog.d.close();detailDial
 function advancedPicker(title){const result=picker(title);result.d.dataset.advanced='true';return result;}
 function renderAdvancedActions(cameraOpen){
  $('#grid').classList.toggle('advanced-grid',['multiview','system'].includes(tab));
- if(cameraOpen||!['inputs','outputs','encoders'].includes(tab)||tab==='outputs'&&source)return;
- const group=el('div',undefined,'bulk-toolbar');group.append(el('span','BULK','bulk-label'));
- for(const [label,operation]of [['ON','enable'],['OFF','disable'],['UNASSIGN','unassign'],['EJECT','eject']]){const b=button(label,()=>openBulk(tab,operation,tab==='outputs'?[...selected]:[]));b.setAttribute('aria-label','Bulk '+label);b.disabled=busy||!online;group.append(b);}$('#actions').append(group);
+ const host=$('#actions');let group=host.querySelector('.bulk-toolbar');
+ if(cameraOpen||!['inputs','outputs','encoders'].includes(tab)||tab==='outputs'&&source){group?.remove();return;}
+ if(!group){group=el('div',undefined,'bulk-toolbar');group.append(el('span','BULK','bulk-label'));
+  for(const [label,operation]of [['ON','enable'],['OFF','disable'],['UNASSIGN','unassign'],['EJECT','eject']]){const b=button(label,()=>openBulk(tab,operation,tab==='outputs'?[...selected]:[]));b.setAttribute('aria-label','Bulk '+label);group.append(b);}host.append(group);}
+ for(const b of group.querySelectorAll('button'))b.disabled=busy||!online;
 }
 function tableEntries(host,rows){const dl=el('dl',undefined,'detail-table');for(const row of rows){if(row.value===undefined||row.value===null)continue;dl.append(el('dt',row.label),el('dd',String(row.value)));}if(!dl.children.length)host.append(el('p','Not reported by StreamHub.'));else host.append(dl);}
 function detailRow(item,kind){const rows=nativeState.channelDetails;return kind==='input'?rows?.inputs?.find(x=>x.id===item.id&&x.uid===item.uid):kind==='encoder'?rows?.encoders?.find(x=>Number(x.id)===item.id):rows?.outputs?.find(x=>x.type===item.type&&String(x.id)===String(item.configIndex));}
@@ -24,12 +26,13 @@ function openChannelDetails(item,kind){
 function syncDetailDialog(){
  const view=detailDialog;if(!view||!view.d.isConnected)return;if(view.epoch!==epoch){closeAdvancedViews();return;}
  const {kind,body,tools,item}=view,current=kind==='input'?data.inputs.find(x=>x.id===item.id&&x.uid===item.uid):kind==='encoder'?nativeState.encoders.find(x=>x.id===item.id):data.outputs.find(x=>x.key===item.key);
- body.replaceChildren();tools.replaceChildren();for(const b of view.tabs.children)b.classList.toggle('active',b.textContent===view.tab);
- if(!current||!online){body.append(el('p','Channel disconnected or state unavailable.'));return;}
+ body.replaceChildren();for(const b of view.tabs.children)b.classList.toggle('active',b.textContent===view.tab);
+ if(!current||!online){tools.replaceChildren();view.toolsKey='';body.append(el('p','Channel disconnected or state unavailable.'));return;}
  const native=nativeReady()?detailRow(current,kind):null;
  if(view.tab==='CONFIG')tableEntries(body,[...(current.configuration||[]),...(current.streamDetails||[]),...(native?.configuration||[]),...(native?.live||[])] .filter((r,n,a)=>a.findIndex(x=>x.label===r.label&&x.value===r.value)===n));
  if(view.tab==='STATS')tableEntries(body,native?.stats?.length?native.stats:current.streamStats||[]);
  if(view.tab==='ALERTS'){const alert=streamHubDiagnostic(current,kind,kind==='input'?nativeInput(current):null);body.append(el('p',alert?.text||alert?.message||current.message||'No error or warning reported.'));}
+ const toolsKey=JSON.stringify([kind,current.id,current.key,current.uid,busy,nativeReady(),current.protocolId,current.canEject,current.input,current.enabled,nativeState.remoteInputs?.includes(current.id),native?.profiles?.profiles.length]);if(view.toolsKey===toolsKey)return;view.toolsKey=toolsKey;tools.replaceChildren();
  if(kind==='input'){
   if(nativeReady()&&nativeState.remoteInputs?.includes(current.id)){const remote=button('Remote access ↗',()=>{const popup=window.open('about:blank','_blank');if(popup)popup.opener=null;advancedWork(async guard=>{try{guard();const r=await nativeCall({action:'remoteAccess',input:current.id,uid:current.uid});guard();const u=new URL(r?.url);if(!['https:','http:'].includes(u.protocol))throw Error('Invalid remote access link.');if(popup)popup.location.replace(u.href);else throw Error('Allow popups to open transmitter remote access.');}catch(e){popup?.close();throw e;}});});remote.disabled=busy;tools.append(remote);}if(current.connected&&!current.isMojo){const b=button('Live profile…',()=>openLiveProfiles(current));b.disabled=busy||!nativeReady()||!native?.profiles?.profiles.length;tools.append(b);}
   const unassign=button(current.protocolId>=0?'UNASSIGN IP':'EJECT terminal',()=>openBulk('inputs',current.protocolId>=0?'unassign':'eject',[current.id]));unassign.disabled=busy||(!current.canEject&&current.protocolId<0);tools.append(unassign);

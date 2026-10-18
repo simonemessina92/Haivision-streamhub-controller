@@ -1,4 +1,4 @@
-Haivision StreamHub Controller 0.25.6 DEV7
+Haivision StreamHub Controller 0.25.7 DEV8
 
 Chrome: enable Developer mode in chrome://extensions, choose Load unpacked and select this folder.
 For an update, replace the files in the existing extension folder, reload the extension and refresh the open pages.

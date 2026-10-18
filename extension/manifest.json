@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Haivision Streamhub Controller",
-  "version": "0.25.6",
+  "version": "0.25.7",
   "description": "StreamHub routing, encoders, Multiview, channel details and MoJo Pro camera control",
   "permissions": [
     "storage",
@@ -67,5 +67,5 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "version_name": "0.25.6-dev7"
+  "version_name": "0.25.7-dev8"
 }
