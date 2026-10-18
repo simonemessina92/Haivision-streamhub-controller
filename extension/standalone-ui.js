@@ -3,7 +3,7 @@ let nativeConfigured=false,webSettings={},loadedSessionId=null;
 const WorkerSocket=typeof chrome.runtime.connect==='function'?createNativeSocketProxy({runtime:chrome.runtime,sessionId:()=>loadedSessionId,onStatus:message=>note(message)}):WebSocket;
 const standalone=createAutonomousNativeSession({
  WebSocketClass:WorkerSocket,load:async()=>{const n=await call({type:'webSession'});loadedSessionId=n.id;return n;},saveToken:n=>call({type:'webToken',base:n.base,sessionId:n.id,token:n.token}),invalidate:n=>call({type:'webInvalidate',base:n.base,sessionId:n.id,token:n.token}),
- onPayload:m=>window.postMessage(m,location.origin),onStatus:message=>note(message)
+ onPayload:m=>queueMicrotask(()=>window.dispatchEvent(new MessageEvent('message',{data:m,origin:location.origin,source:window}))),onStatus:message=>note(message)
 });
 standalone.setPatternReader((n,kind,output)=>call({type:'webPattern',base:n.base,sessionId:n.id,kind,output}));
 function syncAutonomous(){standalone.setActive(nativeConfigured&&connected&&online&&visible&&pollingAllowed()&&data.serverIdentity?{base,identity:data.serverIdentity}:null);const key=$('#web-login');if(key){key.disabled=busy;text(key,nativeConfigured&&standalone.ready?'Web ✓':'Web login');key.title=nativeConfigured?'Manage the direct StreamHub web session':'Sign in directly: StreamHub tab not required';}}
