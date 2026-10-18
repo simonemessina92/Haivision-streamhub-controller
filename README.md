@@ -1,6 +1,6 @@
 # Haivision StreamHub Controller
 
-[**Download 0.25.7 DEV8**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/develop/downloads/haivision-streamhub-controller-v0.25.7-dev8.zip) · [Stable Golden](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/main)
+[**Download 0.25.7 GOLDEN**](https://github.com/simonemessina92/Haivision-streamhub-controller/raw/refs/heads/main/downloads/haivision-streamhub-controller-v0.25.7.zip) · [Development branch](https://github.com/simonemessina92/Haivision-streamhub-controller/tree/develop)
 
 A floating Chrome panel for StreamHub routing, monitoring and MoJo Pro camera control.
 
@@ -37,7 +37,7 @@ You can leave the web login blank to retain the authenticated-tab connection. Hi
 
 ## Development
 
-`main` contains the Golden build. `develop` contains the test build. This DEV has automated tests with simulated responses and Chromium layout checks; device operation needs testing on StreamHub.
+`main` contains the stable Golden build. Use `develop` for changes.
 
 ```sh
 node tools/check.cjs
